@@ -1,0 +1,9 @@
+Servicios\UsuariosServicios.class
+com\mycompany\proyectodomiexpro\resources\JakartaEE8Resource.class
+Servicios\Metodos.class
+Controlador\UsuarioControlador.class
+Modelo\UsuariosDao.class
+com\mycompany\proyectodomiexpro\JakartaRestConfiguration.class
+Utils\ClaseConexion.class
+Modelo\Usuarios.class
+Config\TextConexion.class
