@@ -6,4 +6,5 @@ Modelo\UsuariosDao.class
 com\mycompany\proyectodomiexpro\JakartaRestConfiguration.class
 Utils\ClaseConexion.class
 Modelo\Usuarios.class
+Config\CORSFilter.class
 Config\TextConexion.class

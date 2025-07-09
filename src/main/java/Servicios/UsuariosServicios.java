@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 
 public class UsuariosServicios {
 
- private UsuariosDao dao = new UsuariosDao();
+    private UsuariosDao dao = new UsuariosDao();
 
     public List<Usuarios> obtenerTodos() {
         return dao.listarTodos();
@@ -46,7 +46,10 @@ public class UsuariosServicios {
                 u.setCodigo_rol(usuarioNuevo.getCodigo_rol());
                 u.setCodigo_residencia(usuarioNuevo.getCodigo_residencia());
                 u.setCodigo_tipoC(usuarioNuevo.getCodigo_tipoC());
-                // Aquí deberías usar dao.actualizar(u) si lo implementas
+                u.setUsuario(usuarioNuevo.getUsuario());      
+                u.setContrasena(usuarioNuevo.getContrasena()); 
+
+
                 return true;
             }
         }
@@ -55,7 +58,7 @@ public class UsuariosServicios {
     }
 
     public boolean eliminar(int documento) {
-        //
+        // Esto ahora solo verifica si existe. Si quieres que elimine en la BD, debes hacer query.
         return obtenerPorDocumento(documento) != null;
     }
 }
