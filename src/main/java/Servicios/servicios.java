@@ -15,7 +15,7 @@ import javax.ws.rs.core.Application;
  */
 
 @ApplicationPath("api")
-public class Metodos extends Application {
+public class servicios extends Application {
   
   
    

@@ -12,53 +12,40 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
+/**
+ * Servicio que encapsula la lógica de negocio para la entidad Usuarios.
+ * Se comunica con la capa DAO (UsuariosDAO).
+ */
 public class UsuariosServicios {
 
-    private UsuariosDao dao = new UsuariosDao();
+    private final UsuariosDao usuariosDAO;
 
+    public UsuariosServicios() {
+        this.usuariosDAO = new UsuariosDao();
+    }
+
+    // Obtener todos los usuarios
     public List<Usuarios> obtenerTodos() {
-        return dao.listarTodos();
+        return usuariosDAO.listarTodos();
     }
 
+    // Obtener un usuario por documento
     public Usuarios obtenerPorDocumento(int documento) {
-        return dao.listarTodos().stream()
-                .filter(u -> u.getDocumento_usuario() == documento)
-                .findFirst()
-                .orElse(null);
+        return usuariosDAO.obtenerPorDocumento(documento);
     }
 
+    // Guardar un nuevo usuario
     public boolean guardar(Usuarios usuario) {
-        return dao.guardarUsuario(usuario);
+        return usuariosDAO.guardar(usuario);
     }
 
-    public boolean actualizar(int documento, Usuarios usuarioNuevo) {
-        List<Usuarios> lista = dao.listarTodos();
-
-        for (Usuarios u : lista) {
-            if (u.getDocumento_usuario() == documento) {
-                u.setNombre_usuario(usuarioNuevo.getNombre_usuario());
-                u.setCodigo_Tdocumento(usuarioNuevo.getCodigo_Tdocumento());
-                u.setGenero_usuario(usuarioNuevo.getGenero_usuario());
-                u.setDireccion_usuario(usuarioNuevo.getDireccion_usuario());
-                u.setTelefono_usuario(usuarioNuevo.getTelefono_usuario());
-                u.setCorreo(usuarioNuevo.getCorreo());
-                u.setId_estado(usuarioNuevo.getId_estado());
-                u.setCodigo_rol(usuarioNuevo.getCodigo_rol());
-                u.setCodigo_residencia(usuarioNuevo.getCodigo_residencia());
-                u.setCodigo_tipoC(usuarioNuevo.getCodigo_tipoC());
-                u.setUsuario(usuarioNuevo.getUsuario());      
-                u.setContrasena(usuarioNuevo.getContrasena()); 
-
-
-                return true;
-            }
-        }
-
-        return false;
+    // Actualizar un usuario existente
+    public boolean actualizar(int documento, Usuarios usuario) {
+        return usuariosDAO.actualizar(documento, usuario);
     }
 
+    // Eliminar un usuario por documento
     public boolean eliminar(int documento) {
-        // Esto ahora solo verifica si existe. Si quieres que elimine en la BD, debes hacer query.
-        return obtenerPorDocumento(documento) != null;
+        return usuariosDAO.eliminar(documento);
     }
 }

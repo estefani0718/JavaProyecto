@@ -9,6 +9,8 @@ package Modelo;
  * @author eeste
  */
 public class Usuarios {
+
+    private int id; // NUEVO CAMPO
     private String nombre_usuario;
     private long documento_usuario;
     private int codigo_Tdocumento;
@@ -25,6 +27,27 @@ public class Usuarios {
 
     public Usuarios() {}
 
+    // Constructor completo incluyendo ID
+    public Usuarios(int id, String nombre_usuario, long documento_usuario, int codigo_Tdocumento, String genero_usuario,
+                    String direccion_usuario, String telefono_usuario, String correo, int id_estado,
+                    int codigo_rol, int codigo_residencia, int codigo_tipoC, String usuario, String contrasena) {
+        this.id = id;
+        this.nombre_usuario = nombre_usuario;
+        this.documento_usuario = documento_usuario;
+        this.codigo_Tdocumento = codigo_Tdocumento;
+        this.genero_usuario = genero_usuario;
+        this.direccion_usuario = direccion_usuario;
+        this.telefono_usuario = telefono_usuario;
+        this.correo = correo;
+        this.id_estado = id_estado;
+        this.codigo_rol = codigo_rol;
+        this.codigo_residencia = codigo_residencia;
+        this.codigo_tipoC = codigo_tipoC;
+        this.usuario = usuario;
+        this.contrasena = contrasena;
+    }
+
+    // Constructor sin ID (para guardar)
     public Usuarios(String nombre_usuario, long documento_usuario, int codigo_Tdocumento, String genero_usuario,
                     String direccion_usuario, String telefono_usuario, String correo, int id_estado,
                     int codigo_rol, int codigo_residencia, int codigo_tipoC, String usuario, String contrasena) {
@@ -42,6 +65,10 @@ public class Usuarios {
         this.usuario = usuario;
         this.contrasena = contrasena;
     }
+
+    // Getters y Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public String getNombre_usuario() { return nombre_usuario; }
     public void setNombre_usuario(String nombre_usuario) { this.nombre_usuario = nombre_usuario; }
@@ -81,4 +108,4 @@ public class Usuarios {
 
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
-    }
+}
