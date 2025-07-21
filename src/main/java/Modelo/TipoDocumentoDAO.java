@@ -1,5 +1,6 @@
 package Modelo;
 
+import Utils.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,12 +18,17 @@ import java.util.List;
  * @author eeste
  */
 public class TipoDocumentoDAO {
-    private Connection connection;
+       private Connection connection;
 
+    // Constructor por parámetro (opcional si usas inyección)
     public TipoDocumentoDAO(Connection connection) {
         this.connection = connection;
     }
 
+    // Constructor por defecto
+    public TipoDocumentoDAO() {
+        this.connection = ClaseConexion.obtenerConexion();
+    }
     // Listar todos
     public List<TipoDocumento> obtenerTodos() {
         List<TipoDocumento> lista = new ArrayList<>();

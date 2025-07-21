@@ -2,8 +2,8 @@
 package Controlador;
 
 import Modelo.Usuarios;
-import Servicios.UsuariosServicios;
 import Utils.ClaseConexion;
+import java.sql.SQLException;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
  *
  * @author eeste
  */
+
 /**
  * Controlador REST para la entidad Usuarios
  * Expone endpoints para operaciones CRUD usando Jersey y Jackson.
@@ -29,69 +30,54 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UsuarioControlador {
 
-    private final UsuariosServicios servicio = new UsuariosServicios();
+    private UsuariosServicios servicio = new UsuariosServicios();
 
-    // Obtener todos los usuarios
     @GET
-    public Response listarUsuarios() {
-        List<Usuarios> lista = servicio.obtenerTodos();
-        return Response.ok(lista).build();
+    public List<Usuarios> listar() throws Exception {
+        return servicio.obtenerTodos();
     }
 
-    // Obtener un usuario por su documento
     @GET
-    @Path("/{documento}")
-    public Response obtenerUsuario(@PathParam("documento") int documento) {
-        Usuarios usuario = servicio.obtenerPorDocumento(documento);
-        if (usuario != null) {
-            return Response.ok(usuario).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Usuario no encontrado con documento: " + documento)
-                    .build();
-        }
+    @Path("/{id}")
+    public Usuarios obtenerPorId(@PathParam("id") int id) throws Exception {
+        return servicio.obtenerPorId(id);
     }
 
-    // Crear nuevo usuario
+    @GET
+    @Path("/documento/{documento}")
+    public Usuarios obtenerPorDocumento(@PathParam("documento") long documento) throws Exception {
+        return servicio.obtenerPorDocumento(documento);
+    }
+
     @POST
-    public Response guardarUsuario(Usuarios usuario) {
+    public Response guardar(Usuarios usuario) throws Exception {
         boolean exito = servicio.guardar(usuario);
         if (exito) {
-            return Response.status(Response.Status.CREATED)
-                    .entity("Usuario guardado exitosamente: " + usuario.getNombre_usuario())
-                    .build();
+            return Response.status(Response.Status.CREATED).entity("Usuario registrado exitosamente").build();
         } else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error al guardar el usuario.")
-                    .build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo registrar el usuario").build();
         }
     }
 
-    // Actualizar usuario existente
     @PUT
-    @Path("/{documento}")
-    public Response actualizarUsuario(@PathParam("documento") int documento, Usuarios usuario) {
-        boolean exito = servicio.actualizar(documento, usuario);
+    @Path("/{id}")
+    public Response actualizar(@PathParam("id") int id, Usuarios usuario) throws Exception {
+        boolean exito = servicio.actualizar(id, usuario);
         if (exito) {
-            return Response.ok("Usuario actualizado correctamente.").build();
+            return Response.ok("Usuario actualizado correctamente").build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("No se encontró el usuario con documento: " + documento)
-                    .build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
         }
     }
 
-    // Eliminar usuario por documento
     @DELETE
     @Path("/{documento}")
-    public Response eliminarUsuario(@PathParam("documento") int documento) {
+    public Response eliminarUsuario(@PathParam("documento") long documento) {
         boolean exito = servicio.eliminar(documento);
         if (exito) {
-            return Response.ok("Usuario eliminado correctamente.").build();
+            return Response.ok("Usuario deshabilitado (estado cambiado)").build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("No se encontró el usuario con documento: " + documento)
-                    .build();
+            return Response.status(Response.Status.NOT_FOUND).entity("No se encontró el usuario").build();
         }
     }
 }
