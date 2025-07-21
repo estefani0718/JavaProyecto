@@ -10,7 +10,7 @@ package Modelo;
  */
 public class Usuarios {
 
-    private int id; // NUEVO CAMPO
+    private int id; 
     private String nombre_usuario;
     private long documento_usuario;
     private int codigo_Tdocumento;
