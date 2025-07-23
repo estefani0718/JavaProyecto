@@ -59,7 +59,9 @@ public class CategoriaPaquetesDao {
 
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, id); // Se establece el ID en la consulta
-            ResultSet rs = stmt.executeQuery(); // Se ejecuta
+            // Ejecuta la consulta SQL (SELECT) previamente preparada y devuelve los resultados en un objeto ResultSet.
+           // Este objeto permite recorrer los datos obtenidos fila por fila desde la base de datos.
+            ResultSet rs = stmt.executeQuery(); 
 
             // Si hay un resultado, se crea el objeto con los datos obtenidos
             if (rs.next()) {
@@ -96,7 +98,7 @@ public class CategoriaPaquetesDao {
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setString(1, cp.getNombreCategoria()); // Nuevo nombre
             stmt.setInt(2, cp.getCodigoPaquete()); // ID a actualizar
-            return stmt.executeUpdate() > 0; // true si se actualizó
+            return stmt.executeUpdate() > 0; // decuelve true si se actualizó
 
         } catch (SQLException e) {
             System.out.println("Error al actualizar categoría: " + e.getMessage());
@@ -110,7 +112,7 @@ public class CategoriaPaquetesDao {
 
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, id); // Se pasa el ID a eliminar
-            return stmt.executeUpdate() > 0; // true si al menos una fila fue eliminada
+            return stmt.executeUpdate() > 0; // devuelve true si al menos una fila fue eliminada
 
         } catch (SQLException e) {
             System.out.println("Error al eliminar categoría: " + e.getMessage());

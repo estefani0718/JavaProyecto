@@ -45,17 +45,20 @@ public class TipoDocumentoServicios {
             return "Error al insertar tipo de documento.";
         }
     }
-
+        // GET: Obtener un tipo de documento por ID
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public TipoDocumento obtenerPorId(@PathParam("id") int id) {
+        return dao.obtenerPorId(id);
+    }
     // PUT: Actualizar tipo de documento por ID
-
-  @PUT
+    @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public String actualizar(@PathParam("id") int id, TipoDocumento tipo) {
-        tipo.setCodigo_Tdocumento(id); // 🔥 Asignamos el id al objeto recibido
-
-        boolean exito = dao.actualizar(tipo); // ✅ Ahora pasamos el objeto completo
-
+        tipo.setCodigo_Tdocumento(id); // Asigna el ID del path al objeto
+        boolean exito = dao.actualizar(tipo);
         if (exito) {
             return "Tipo de documento actualizado correctamente.";
         } else {

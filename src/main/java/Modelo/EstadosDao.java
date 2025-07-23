@@ -4,6 +4,7 @@
  */
 package Modelo;
 
+import Utils.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,8 +23,21 @@ public class EstadosDao {
     private Connection conexion;
 
     // Constructor que recibe una conexión activa a la base de datos
-    public EstadosDao(Connection conexion) {
-        this.conexion = conexion;
+    public EstadosDao( ) {
+        this.conexion = ClaseConexion.obtenerConexion();
+    }
+    public int obtenerIdPorNombre(String nombreEstado) throws SQLException {
+        String sql = "SELECT id_estado FROM Estados WHERE nombre_estado = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setString(1, nombreEstado);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_estado");
+                } else {
+                    throw new SQLException("Estado no encontrado: " + nombreEstado);
+                }
+            }
+        }
     }
 
     // Obtener todos los registros de la tabla Estados

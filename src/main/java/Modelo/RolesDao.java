@@ -4,6 +4,7 @@
  */
 package Modelo;
 
+import Utils.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,8 +23,23 @@ public class RolesDao {
     private Connection conexion;
 
     // Constructor que recibe la conexión activa a la base de datos
-    public RolesDao(Connection conexion) {
-        this.conexion = conexion;
+    public RolesDao() {
+        this.conexion = ClaseConexion.obtenerConexion();
+    }
+    public int obtenerIdPorNombre(String nombreRol) {
+    int id = -1;
+    String sql = "SELECT codigo_rol FROM Roles  WHERE nombre_rol = ?";
+    try (Connection con = ClaseConexion.obtenerConexion();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setString(1, nombreRol);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            id = rs.getInt("codigo_rol");
+        }
+    } catch (SQLException e) {
+        System.out.println("Error al obtener ID del Rol: " + e.getMessage());
+    }
+    return id;
     }
 
     // Obtener todos los roles existentes
@@ -47,7 +63,7 @@ public class RolesDao {
 
         return lista;
     }
-
+    
     // Obtener un rol específico por su ID
     public Roles obtenerPorId(int id) {
         Roles rol = null;

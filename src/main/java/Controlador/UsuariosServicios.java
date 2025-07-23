@@ -1,16 +1,17 @@
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Controlador;
 
-import Modelo.Usuarios;
-import Modelo.UsuariosDao;
+
+
+
+import Modelo.UsuariosDto;
 import java.sql.SQLException;
 import java.util.List;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import Modelo.UsuariosDao;
+import java.sql.SQLException;
 
 
 /**
@@ -19,30 +20,77 @@ import javax.ws.rs.core.Response;
  */
 public class UsuariosServicios {
 
-    private UsuariosDao dao = new UsuariosDao();
+    private final UsuariosDao usuariosDao = new UsuariosDao();
 
-     public List<Usuarios> obtenerTodos() {
-        return dao.listarTodos();
+    /**
+     * Lista todos los usuarios con los nombres legibles de las relaciones (no solo IDs).
+     * @return Lista de usuarios DTO.
+     * @throws SQLException si ocurre un error en la base de datos.
+     */
+    public List<UsuariosDto> obtenerTodosConNombres() throws SQLException {
+        return usuariosDao.listarUsuariosConNombres();
     }
 
-    public Usuarios obtenerPorId(int id) throws Exception {
-        return dao.obtenerPorId(id);
+    /**
+     * Busca un usuario por su ID (id de tabla, no documento).
+     * @param id El ID del usuario.
+     * @return El usuario encontrado, o null si no existe.
+     * @throws SQLException si ocurre un error en la base de datos.
+     */
+    public UsuariosDto obtenerPorId(int id) throws SQLException {
+        return usuariosDao.obtenerPorId(id);
     }
 
-    public Usuarios obtenerPorDocumento(long documento) throws Exception {
-        return dao.buscarPorDocumento(documento);
+    /**
+     * Busca un usuario por su número de documento.
+     * @param documento Número de documento del usuario.
+     * @return El usuario encontrado, o null si no existe.
+     * @throws SQLException si ocurre un error en la base de datos.
+     */
+    public UsuariosDto obtenerPorDocumento(long documento) throws SQLException {
+        return usuariosDao.buscarPorDocumento(documento);
     }
 
-    public boolean guardar(Usuarios usuario) throws Exception {
-        return dao.guardar(usuario);
+    /**
+     * Registra un nuevo usuario usando los nombres legibles de relaciones (DTO).
+     * @param dto Objeto DTO que contiene los datos del usuario.
+     * @return true si se registró correctamente, false si falló.
+     * @throws SQLException si ocurre un error en la base de datos.
+     */
+    public boolean registrarUsuarioDesdeDTO(UsuariosDto dto) throws SQLException {
+        return usuariosDao.registrarUsuarioConNombres(dto);
     }
 
-    public boolean actualizar(int id, Usuarios usuario) throws Exception {
-        return dao.actualizar(id, usuario);
+    /**
+     * Actualiza un usuario por su ID usando nombres legibles (DTO).
+     * @param id ID del usuario en la base de datos.
+     * @param dto Datos nuevos del usuario.
+     * @return true si se actualizó correctamente, false si falló.
+     * @throws SQLException si ocurre un error en la base de datos.
+     */
+    public boolean actualizarPorId(int id, UsuariosDto dto) throws SQLException {
+        return usuariosDao.actualizarUsuarioPorId(id, dto);
     }
 
-    // Eliminar (solo cambia estado del usuario)
-    public boolean eliminar(long documento) {
-        return dao.deshabilitarUsuarioPorDocumento(documento);
+    /**
+     * Actualiza un usuario por su número de documento usando nombres legibles (DTO).
+     * @param documento Número de documento del usuario.
+     * @param dto Datos nuevos del usuario.
+     * @return true si se actualizó correctamente, false si falló.
+     * @throws SQLException si ocurre un error en la base de datos.
+     */
+    public boolean actualizarPorDocumento(long documento, UsuariosDto dto) throws SQLException {
+        return usuariosDao.actualizarUsuarioPorDocumento(documento, dto);
     }
+
+    /**
+     * Deshabilita un usuario (eliminación lógica) por número de documento.
+     * Cambia su estado a "3" (elimnado).
+     * @param documento Documento del usuario.
+     * @return true si se deshabilitó correctamente, false si falló.
+     */
+    public boolean deshabilitarUsuario(long documento) {
+        return usuariosDao.deshabilitarUsuarioPorDocumento(documento);
+    }
+    
 }

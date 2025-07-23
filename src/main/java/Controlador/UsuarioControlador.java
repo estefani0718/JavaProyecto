@@ -1,7 +1,10 @@
     
 package Controlador;
 
-import Modelo.Usuarios;
+
+import Modelo.UsuariosNombresDto;
+import Controlador.UsuariosServicios;
+import Modelo.UsuariosDto;
 import Utils.ClaseConexion;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,62 +25,147 @@ import javax.ws.rs.core.Response;
  */
 
 /**
- * Controlador REST para la entidad Usuarios
- * Expone endpoints para operaciones CRUD usando Jersey y Jackson.
+ * Controlador REST para manejar las solicitudes relacionadas con la entidad Usuarios.
  */
-@Path("/Usuarios")
+@Path("/usuarios")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UsuarioControlador {
 
-    private UsuariosServicios servicio = new UsuariosServicios();
+    private final UsuariosServicios servicio = new UsuariosServicios();
 
+    /**
+     * Lista todos los usuarios con nombres legibles de relaciones.
+     * @return Lista de usuarios o error 500.
+     */
     @GET
-    public List<Usuarios> listar() throws Exception {
-        return servicio.obtenerTodos();
+    public Response listarUsuariosConNombres() {
+        try {
+            List<UsuariosDto> lista = servicio.obtenerTodosConNombres();
+            return Response.ok(lista).build();
+        } catch (SQLException e) {
+            return Response.serverError().entity("Error al listar usuarios: " + e.getMessage()).build();
+        }
     }
 
+    /**
+     * Obtiene un usuario por su ID.
+     * @param id ID del usuario.
+     * @return Usuario encontrado o 404 si no existe.
+     */
     @GET
     @Path("/{id}")
-    public Usuarios obtenerPorId(@PathParam("id") int id) throws Exception {
-        return servicio.obtenerPorId(id);
+    public Response obtenerPorId(@PathParam("id") int id) {
+        try {
+            UsuariosDto usuario = servicio.obtenerPorId(id);
+            if (usuario != null) {
+                return Response.ok(usuario).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity("Error al obtener usuario: " + e.getMessage()).build();
+        }
     }
 
+    /**
+     * Obtiene un usuario por su número de documento.
+     * @param documento Número de documento del usuario.
+     * @return Usuario encontrado o 404 si no existe.
+     */
     @GET
     @Path("/documento/{documento}")
-    public Usuarios obtenerPorDocumento(@PathParam("documento") long documento) throws Exception {
-        return servicio.obtenerPorDocumento(documento);
+    public Response obtenerPorDocumento(@PathParam("documento") long documento) {
+        try {
+            UsuariosDto usuario = servicio.obtenerPorDocumento(documento);
+            if (usuario != null) {
+                return Response.ok(usuario).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity("Error al obtener usuario: " + e.getMessage()).build();
+        }
     }
 
+    /**
+     * Registra un nuevo usuario a partir de un DTO que contiene strings legibles.
+     * @param dto DTO con nombres legibles.
+     * @return Mensaje de éxito o error.
+     */
     @POST
-    public Response guardar(Usuarios usuario) throws Exception {
-        boolean exito = servicio.guardar(usuario);
-        if (exito) {
-            return Response.status(Response.Status.CREATED).entity("Usuario registrado exitosamente").build();
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo registrar el usuario").build();
+    public Response registrarUsuario(UsuariosDto dto) {
+        try {
+            boolean registrado = servicio.registrarUsuarioDesdeDTO(dto);
+            if (registrado) {
+                return Response.status(Response.Status.CREATED).entity("Usuario registrado correctamente").build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo registrar el usuario").build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity("Error al registrar usuario: " + e.getMessage()).build();
         }
     }
 
+    /**
+     * Actualiza un usuario por su ID.
+     * @param id ID del usuario.
+     * @param dto DTO con los nuevos datos.
+     * @return Mensaje de éxito o error.
+     */
     @PUT
-    @Path("/{id}")
-    public Response actualizar(@PathParam("id") int id, Usuarios usuario) throws Exception {
-        boolean exito = servicio.actualizar(id, usuario);
-        if (exito) {
-            return Response.ok("Usuario actualizado correctamente").build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+    @Path("/id/{id}")
+    public Response actualizarUsuarioPorId(@PathParam("id") int id, UsuariosDto dto) {
+        try {
+            boolean actualizado = servicio.actualizarPorId(id, dto);
+            if (actualizado) {
+                return Response.ok("Usuario actualizado correctamente").build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity("Error al actualizar usuario: " + e.getMessage()).build();
         }
     }
 
+    /**
+     * Actualiza un usuario por su documento.
+     * @param documento Documento del usuario.
+     * @param dto DTO con los nuevos datos.
+     * @return Mensaje de éxito o error.
+     */
+    @PUT
+    @Path("/documento/{documento}")
+    public Response actualizarUsuarioPorDocumento(@PathParam("documento") long documento, UsuariosDto dto) {
+        try {
+            boolean actualizado = servicio.actualizarPorDocumento(documento, dto);
+            if (actualizado) {
+                return Response.ok("Usuario actualizado correctamente").build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+            }
+        } catch (SQLException e) {
+            return Response.serverError().entity("Error al actualizar usuario: " + e.getMessage()).build();
+        }
+    }
+
+    /**
+     * Deshabilita un usuario (eliminación lógica) cambiando su estado a 3.
+     * @param documento Documento del usuario.
+     * @return Mensaje de éxito o error.
+     */
     @DELETE
-    @Path("/{documento}")
-    public Response eliminarUsuario(@PathParam("documento") long documento) {
-        boolean exito = servicio.eliminar(documento);
-        if (exito) {
-            return Response.ok("Usuario deshabilitado (estado cambiado)").build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("No se encontró el usuario").build();
+    @Path("/documento/{documento}")
+    public Response deshabilitarUsuario(@PathParam("documento") long documento) {
+        try {
+            boolean deshabilitado = servicio.deshabilitarUsuario(documento);
+            if (deshabilitado) {
+                return Response.ok("Usuario deshabilitado correctamente").build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado o ya está deshabilitado").build();
+            }
+        } catch (Exception e) {
+            return Response.serverError().entity("Error al deshabilitar usuario: " + e.getMessage()).build();
         }
     }
 }

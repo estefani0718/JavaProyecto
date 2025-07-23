@@ -18,12 +18,7 @@ import java.util.List;
  * @author eeste
  */
 public class TipoDocumentoDAO {
-       private Connection connection;
-
-    // Constructor por parámetro (opcional si usas inyección)
-    public TipoDocumentoDAO(Connection connection) {
-        this.connection = connection;
-    }
+       private Connection connection ;
 
     // Constructor por defecto
     public TipoDocumentoDAO() {
@@ -45,12 +40,24 @@ public class TipoDocumentoDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+           System.out.println("Error al listar todo el  tipo de documento: " + e.getMessage());
         }
 
         return lista;
     }
-
+    public int obtenerIdPorNombre(String nombreTipo) throws SQLException {
+        String sql = "SELECT codigo_Tdocumento FROM TipoDocumento WHERE  tipo_Documento= ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nombreTipo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("codigo_Tdocumento");
+                } else {
+                    throw new SQLException("Tipo de documento no encontrado: " + nombreTipo);
+                }
+            }
+        }
+    }
     // Obtener por ID
     public TipoDocumento obtenerPorId(int id) {
         TipoDocumento td = null;
@@ -67,7 +74,7 @@ public class TipoDocumentoDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+           System.out.println("Error al obtener id del tipo de documento: " + e.getMessage());
         }
 
         return td;
@@ -82,7 +89,7 @@ public class TipoDocumentoDAO {
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error al insertar el tipo de documento: " + e.getMessage());
         }
 
         return false;
@@ -91,14 +98,17 @@ public class TipoDocumentoDAO {
     // Actualizar
     public boolean actualizar(TipoDocumento td) {
         String sql = "UPDATE TipoDocumento SET tipo_Documento = ? WHERE codigo_Tdocumento = ?";
-
+            
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            // stmt es una instancia de PreparedStatement, utilizada para ejecutar sentencias SQL con parámetros seguros.
+           // Nos permite evitar inyecciones SQL al usar marcadores de posición (?) en la consulta y asignar los valores con setX().
+
             stmt.setString(1, td.getTipo_Documento());
             stmt.setInt(2, td.getCodigo_Tdocumento());
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+           System.out.println("Error al actualizar tipo de documento: " + e.getMessage());
         }
 
         return false;
@@ -116,7 +126,7 @@ public class TipoDocumentoDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+           System.out.println("Error al actualizar tipo de documento: " + e.getMessage());
         }
 
         return false;
@@ -136,7 +146,7 @@ public class TipoDocumentoDAO {
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+           System.out.println("Error al eliminar el tipo de documento: " + e.getMessage());
         }
 
         return false;

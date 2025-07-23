@@ -4,6 +4,7 @@
  */
 package Modelo;
 
+import Utils.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,9 +19,22 @@ import java.util.List;
 public class ResidenciaDao {
     private Connection conexion;
 
-    public ResidenciaDao(Connection conexion) {
-        this.conexion = conexion;
+    public ResidenciaDao() {
+        this.conexion = ClaseConexion.obtenerConexion();
     }
+     public int obtenerIdPorNombre(String nombreResidencia) throws SQLException {
+        String sql = "SELECT codigo_residencia FROM Residencia WHERE nombre_municipio = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setString(1, nombreResidencia);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("codigo_residencia");
+                } else {
+                    throw new SQLException("Residencia no encontrada: " + nombreResidencia);
+                }
+            }
+        }
+     }
 
     public List<Residencia> obtenerTodas() {
         List<Residencia> lista = new ArrayList<>();

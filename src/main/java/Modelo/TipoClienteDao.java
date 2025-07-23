@@ -4,6 +4,7 @@
  */
 package Modelo;
 
+import Utils.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,10 +23,22 @@ public class TipoClienteDao {
     private Connection conexion;
 
     // Constructor que recibe una conexión a la base de datos
-    public TipoClienteDao(Connection conexion) {
-        this.conexion = conexion;
+    public TipoClienteDao() {
+        this.conexion = ClaseConexion.obtenerConexion();
     }
-
+    public int obtenerIdPorNombre(String nombreTipoCliente) throws SQLException {
+        String sql = "SELECT codigo_tipoC FROM TipoCliente WHERE tipo_cliente  = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setString(1, nombreTipoCliente);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("codigo_tipoC");
+                } else {
+                    throw new SQLException("Tipo de cliente no encontrado: " + nombreTipoCliente);
+                }
+            }
+        }
+    }
     // Método para obtener todos los registros de TipoCliente
     public List<TipoCliente> obtenerTodos() {
         List<TipoCliente> lista = new ArrayList<>();
