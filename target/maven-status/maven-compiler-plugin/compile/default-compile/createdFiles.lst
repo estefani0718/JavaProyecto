@@ -1,6 +1,7 @@
 Controlador\EstadosControlador.class
 Modelo\TipoPaquete.class
 Utils\ClaseConexion.class
+Controlador\PreflightCORSHandler.class
 Controlador\ResidenciaServicios.class
 Controlador\UsuarioControlador.class
 Modelo\FacturaDao.class
@@ -17,7 +18,6 @@ Controlador\TipoTransporteControlador.class
 Controlador\TipoDocumentoControlador.class
 Controlador\TipoPaqueteServicios.class
 Modelo\Residencia.class
-Modelo\UsuariosNombresDto.class
 Controlador\EstadosServicios.class
 Controlador\FacturaServicios.class
 Modelo\TransporteUsuarioDao.class

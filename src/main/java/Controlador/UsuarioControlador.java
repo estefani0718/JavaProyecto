@@ -2,7 +2,7 @@
 package Controlador;
 
 
-import Modelo.UsuariosNombresDto;
+
 import Controlador.UsuariosServicios;
 import Modelo.UsuariosDto;
 import Utils.ClaseConexion;
@@ -55,6 +55,7 @@ public class UsuarioControlador {
      */
     @GET
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response obtenerPorId(@PathParam("id") int id) {
         try {
             UsuariosDto usuario = servicio.obtenerPorId(id);
@@ -94,6 +95,9 @@ public class UsuarioControlador {
      * @return Mensaje de éxito o error.
      */
     @POST
+    @Path("/registrar")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response registrarUsuario(UsuariosDto dto) {
         try {
             boolean registrado = servicio.registrarUsuarioDesdeDTO(dto);
@@ -115,6 +119,8 @@ public class UsuarioControlador {
      */
     @PUT
     @Path("/id/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response actualizarUsuarioPorId(@PathParam("id") int id, UsuariosDto dto) {
         try {
             boolean actualizado = servicio.actualizarPorId(id, dto);
@@ -136,6 +142,8 @@ public class UsuarioControlador {
      */
     @PUT
     @Path("/documento/{documento}")
+     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response actualizarUsuarioPorDocumento(@PathParam("documento") long documento, UsuariosDto dto) {
         try {
             boolean actualizado = servicio.actualizarPorDocumento(documento, dto);
@@ -156,6 +164,7 @@ public class UsuarioControlador {
      */
     @DELETE
     @Path("/documento/{documento}")
+     @Consumes(MediaType.APPLICATION_JSON)
     public Response deshabilitarUsuario(@PathParam("documento") long documento) {
         try {
             boolean deshabilitado = servicio.deshabilitarUsuario(documento);
@@ -168,4 +177,28 @@ public class UsuarioControlador {
             return Response.serverError().entity("Error al deshabilitar usuario: " + e.getMessage()).build();
         }
     }
+    
+   @POST
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response login(UsuariosDto dto) {
+        try {
+            UsuariosDto usuarioValidado = servicio.login(dto.getUsuario(), dto.getContrasena());
+
+            if (usuarioValidado != null) {
+                return Response.ok(usuarioValidado).build();
+            } else {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                               .entity("{\"mensaje\": \"Credenciales inválidas\"}")
+                               .build();
+            }
+
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("{\"error\": \"Error del servidor\"}")
+                           .build();
+        }
+    }
+
 }

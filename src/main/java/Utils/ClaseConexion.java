@@ -31,7 +31,5 @@ public class ClaseConexion {
            System.out.println("error....");
         }
         return cn;
-    }
-
-    
+    }    
 }

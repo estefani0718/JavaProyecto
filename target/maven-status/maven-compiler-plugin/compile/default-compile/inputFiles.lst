@@ -2,6 +2,7 @@ C:\principal\Java\JavaProyecto\src\main\java\Modelo\EstadosDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\UsuariosDto.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TransporteUsuarioServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\RolesDao.java
+C:\principal\Java\JavaProyecto\src\main\java\Controlador\PreflightCORSHandler.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\ResidenciaDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoClienteServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\RolesControlador.java
@@ -40,7 +41,6 @@ C:\principal\Java\JavaProyecto\src\main\java\Controlador\ResidenciaServicios.jav
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoTransporteControlador.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TipoTransporteDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\FacturaControlador.java
-C:\principal\Java\JavaProyecto\src\main\java\Modelo\UsuariosNombresDto.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\EstadosControlador.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\CategoriaPaqueteServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoPaqueteServicios.java

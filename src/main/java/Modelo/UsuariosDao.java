@@ -21,6 +21,39 @@ import javax.swing.JOptionPane;
  * DAO para manejar operaciones CRUD de la tabla Usuarios.
  */
 public class UsuariosDao {
+    
+    
+    
+    public UsuariosDto validarLogin(String usuario, String contrasena) throws SQLException {
+        String sql = """
+            SELECT u.*, r.rol 
+            FROM Usuarios u
+            JOIN Roles r ON u.codigo_rol = r.codigo_rol
+            WHERE u.usuario = ? AND u.contrasena = ? AND u.id_estado = 1
+        """;
+
+        try (Connection cn = ClaseConexion.obtenerConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setString(1, usuario);
+            ps.setString(2, contrasena);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UsuariosDto dto = new UsuariosDto();
+                    dto.setId(rs.getInt("id"));
+                    dto.setUsuario(rs.getString("usuario"));
+                    dto.setContrasena(rs.getString("contrasena"));
+                    dto.setRol(rs.getString("rol")); // este te ayudará a redirigir
+
+                    return dto;
+                }
+            }
+        }
+
+        return null; // Si no se encuentra
+    }
+
 
     // ------------------------ REGISTRAR USUARIO CON STRINGS LEGIBLES ------------------------
     public boolean registrarUsuarioConNombres(UsuariosDto dto) throws SQLException {
@@ -31,7 +64,7 @@ public class UsuariosDao {
         int idEstado = new EstadosDao().obtenerIdPorNombre(dto.getEstado());
         int idRol = new RolesDao().obtenerIdPorNombre(dto.getRol());
         int idResidencia = new ResidenciaDao().obtenerIdPorNombre(dto.getResidencia());
-        int idTipoCliente = new TipoClienteDao().obtenerIdPorNombre(dto.getTipo_cliente());
+        
 
         try (Connection cn = ClaseConexion.obtenerConexion();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -46,10 +79,9 @@ public class UsuariosDao {
             ps.setInt(8, idEstado);
             ps.setInt(9, idRol);
             ps.setInt(10, idResidencia);
-            ps.setInt(11, idTipoCliente);
             ps.setString(12, dto.getUsuario());
             ps.setString(13, dto.getContrasena());
-
+          
             return ps.executeUpdate() > 0;
         }
     }
@@ -62,8 +94,7 @@ public class UsuariosDao {
                      "JOIN TipoDocumento td ON u.codigo_Tdocumento = td.codigo_Tdocumento " +
                      "JOIN Estados e ON u.id_estado = e.id_estado " +
                      "JOIN Roles r ON u.codigo_rol = r.codigo_rol " +
-                     "JOIN Residencia res ON u.codigo_residencia = res.codigo_residencia " +
-                     "JOIN TipoCliente tc ON u.codigo_tipoC = tc.codigo_tipoC";
+                     "JOIN Residencia res ON u.codigo_residencia = res.codigo_residencia ";
 
         try (Connection cn = ClaseConexion.obtenerConexion();
              PreparedStatement ps = cn.prepareStatement(sql);
@@ -82,7 +113,7 @@ public class UsuariosDao {
                 dto.setEstado(rs.getString("nombre_estado"));
                 dto.setRol(rs.getString("rol"));
                 dto.setResidencia(rs.getString("nombre_municipio"));
-                dto.setTipo_cliente(rs.getString("tipo_cliente"));
+              
                 dto.setUsuario(rs.getString("usuario"));
                 dto.setContrasena(rs.getString("contrasena"));
                 lista.add(dto);
@@ -93,14 +124,67 @@ public class UsuariosDao {
     }
 
     // ------------------------ BUSCAR USUARIO POR ID ------------------------
+/**
+ * Obtiene un usuario por su ID, incluyendo los nombres legibles de las relaciones
+ * (tipo de documento, estado, rol, residencia y tipo de cliente).
+ *
+ * @param id El ID del usuario a buscar.
+ * @return UsuariosDto con los datos completos, o null si no se encuentra.
+ * @throws SQLException si ocurre un error al consultar la base de datos.
+ */
     public UsuariosDto obtenerPorId(int id) throws SQLException {
-        for (UsuariosDto u : listarUsuariosConNombres()) {
-            if (u.getDocumento_usuario() == id) {
-                return u;
+        String sql = """
+            SELECT 
+                u.id,
+                u.nombre_usuario,
+                u.documento_usuario,
+                td.tipo_Documento AS tipo_documento,
+                u.genero_usuario,
+                u.direccion_usuario,
+                u.telefono_usuario,
+                u.correo,
+                e.nombre_estado AS estado,
+                r.rol AS rol,
+                res. nombre_municipio AS residencia,
+                u.usuario,
+                u.contrasena
+            FROM Usuarios u
+            JOIN TipoDocumento td ON u.codigo_Tdocumento = td.codigo_Tdocumento
+            JOIN Estados e ON u.id_estado = e.id_estado
+            JOIN Roles r ON u.codigo_rol = r.codigo_rol
+            JOIN Residencia res ON u. codigo_residencia = res. codigo_residencia 
+            WHERE u.id = ?
+        """;
+
+        try (Connection conn = ClaseConexion.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    UsuariosDto usuario = new UsuariosDto();
+                    usuario.setId(rs.getInt("id"));
+                    usuario.setNombre_usuario(rs.getString("nombre_usuario"));
+                    usuario.setDocumento_usuario(rs.getLong("documento_usuario"));
+                    usuario.setTipo_documento(rs.getString("tipo_documento"));
+                    usuario.setGenero_usuario(rs.getString("genero_usuario"));
+                    usuario.setDireccion_usuario(rs.getString("direccion_usuario"));
+                    usuario.setTelefono_usuario(rs.getString("telefono_usuario"));
+                    usuario.setCorreo(rs.getString("correo"));
+                    usuario.setEstado(rs.getString("estado"));
+                    usuario.setRol(rs.getString("rol"));
+                    usuario.setResidencia(rs.getString("residencia"));
+                    usuario.setUsuario(rs.getString("usuario"));
+                    usuario.setContrasena(rs.getString("contrasena"));
+                    return usuario;
+                }
             }
         }
+
         return null;
     }
+
 
     // ------------------------ BUSCAR USUARIO POR DOCUMENTO ------------------------
     public UsuariosDto buscarPorDocumento(long documento) throws SQLException {
@@ -114,13 +198,12 @@ public class UsuariosDao {
 
     // ------------------------ ACTUALIZAR POR ID ------------------------
     public boolean actualizarUsuarioPorId(int id, UsuariosDto dto) throws SQLException {
-        String sql = "UPDATE Usuarios SET nombre_usuario=?, documento_usuario=?, codigo_Tdocumento=?, genero_usuario=?, direccion_usuario=?, telefono_usuario=?, correo=?, id_estado=?, codigo_rol=?, codigo_residencia=?, codigo_tipoC=?, usuario=?, contrasena=? WHERE id=?";
+        String sql = "UPDATE Usuarios SET nombre_usuario=?, documento_usuario=?, codigo_Tdocumento=?, genero_usuario=?, direccion_usuario=?, telefono_usuario=?, correo=?, id_estado=?, codigo_rol=?, codigo_residencia=?, usuario=?, contrasena=? WHERE id=?";
 
         int idTipoDoc = new TipoDocumentoDAO().obtenerIdPorNombre(dto.getTipo_documento());
         int idEstado = new EstadosDao().obtenerIdPorNombre(dto.getEstado());
         int idRol = new RolesDao().obtenerIdPorNombre(dto.getRol());
         int idResidencia = new ResidenciaDao().obtenerIdPorNombre(dto.getResidencia());
-        int idTipoCliente = new TipoClienteDao().obtenerIdPorNombre(dto.getTipo_cliente());
 
         try (Connection cn = ClaseConexion.obtenerConexion();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -135,7 +218,6 @@ public class UsuariosDao {
             ps.setInt(8, idEstado);
             ps.setInt(9, idRol);
             ps.setInt(10, idResidencia);
-            ps.setInt(11, idTipoCliente);
             ps.setString(12, dto.getUsuario());
             ps.setString(13, dto.getContrasena());
             ps.setInt(14, id);
@@ -148,13 +230,12 @@ public class UsuariosDao {
 
     // ------------------------ ACTUALIZAR POR DOCUMENTO ------------------------
     public boolean actualizarUsuarioPorDocumento(long documento, UsuariosDto dto) throws SQLException {
-        String sql = "UPDATE Usuarios SET nombre_usuario=?, codigo_Tdocumento=?, genero_usuario=?, direccion_usuario=?, telefono_usuario=?, correo=?, id_estado=?, codigo_rol=?, codigo_residencia=?, codigo_tipoC=?, usuario=?, contrasena=? WHERE documento_usuario=?";
+        String sql = "UPDATE Usuarios SET nombre_usuario=?, codigo_Tdocumento=?, genero_usuario=?, direccion_usuario=?, telefono_usuario=?, correo=?, id_estado=?, codigo_rol=?, codigo_residencia=?,  usuario=?, contrasena=? WHERE documento_usuario=?";
 
         int idTipoDoc = new TipoDocumentoDAO().obtenerIdPorNombre(dto.getTipo_documento());
         int idEstado = new EstadosDao().obtenerIdPorNombre(dto.getEstado());
         int idRol = new RolesDao().obtenerIdPorNombre(dto.getRol());
         int idResidencia = new ResidenciaDao().obtenerIdPorNombre(dto.getResidencia());
-        int idTipoCliente = new TipoClienteDao().obtenerIdPorNombre(dto.getTipo_cliente());
 
         try (Connection cn = ClaseConexion.obtenerConexion();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -168,7 +249,6 @@ public class UsuariosDao {
             ps.setInt(7, idEstado);
             ps.setInt(8, idRol);
             ps.setInt(9, idResidencia);
-            ps.setInt(10, idTipoCliente);
             ps.setString(11, dto.getUsuario());
             ps.setString(12, dto.getContrasena());
             ps.setLong(13, documento);

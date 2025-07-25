@@ -21,6 +21,10 @@ import java.sql.SQLException;
 public class UsuariosServicios {
 
     private final UsuariosDao usuariosDao = new UsuariosDao();
+    
+    public UsuariosDto login(String usuario, String contrasena) throws SQLException {
+       return usuariosDao.validarLogin(usuario, contrasena);
+    }
 
     /**
      * Lista todos los usuarios con los nombres legibles de las relaciones (no solo IDs).

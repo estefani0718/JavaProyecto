@@ -24,8 +24,7 @@ public class UsuariosDto {
     private String correo;
     private String estado;          // Ej: "Activo"
     private String rol;             // Ej: "Administrador"
-    private String residencia;      // Ej: "Bogotá"
-    private String tipo_cliente;    // Ej: "Frecuente"
+    private String residencia;      // Ej: "Bogotá" 
     private String usuario;
     private String contrasena;
 
@@ -116,14 +115,6 @@ public class UsuariosDto {
 
     public void setResidencia(String residencia) {
         this.residencia = residencia;
-    }
-
-    public String getTipo_cliente() {
-        return tipo_cliente;
-    }
-
-    public void setTipo_cliente(String tipo_cliente) {
-        this.tipo_cliente = tipo_cliente;
     }
 
     public String getUsuario() {
