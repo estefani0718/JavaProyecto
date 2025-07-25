@@ -55,7 +55,6 @@ public class UsuarioControlador {
      */
     @GET
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response obtenerPorId(@PathParam("id") int id) {
         try {
             UsuariosDto usuario = servicio.obtenerPorId(id);

@@ -28,7 +28,7 @@ public class RolesDao {
     }
     public int obtenerIdPorNombre(String nombreRol) {
     int id = -1;
-    String sql = "SELECT codigo_rol FROM Roles  WHERE nombre_rol = ?";
+    String sql = "SELECT codigo_rol FROM Roles  WHERE rol = ?";
     try (Connection con = ClaseConexion.obtenerConexion();
          PreparedStatement ps = con.prepareStatement(sql)) {
         ps.setString(1, nombreRol);
