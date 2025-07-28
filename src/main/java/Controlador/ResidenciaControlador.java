@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 /**
  * Controlador REST para la entidad Residencia
  */
-@Path("/Residencia")
+@Path("/residencia")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ResidenciaControlador {
@@ -27,18 +27,18 @@ public class ResidenciaControlador {
 
     @GET
     public List<Residencia> listar() {
-        return servicio.obtenerTodas();
+        return servicio.listarResidencias();
     }
 
     @GET
     @Path("/{id}")
     public Residencia obtenerPorId(@PathParam("id") int id) {
-        return servicio.obtenerPorId(id);
+        return servicio.buscarResidenciaPorId(id);
     }
 
     @POST
     public Response guardar(Residencia residencia) {
-        boolean exito = servicio.insertar(residencia).contains("correctamente");
+        boolean exito = servicio.registrarResidencia(residencia);
         if (exito) {
             return Response.status(Response.Status.CREATED).entity("Residencia registrada exitosamente").build();
         } else {
@@ -49,7 +49,7 @@ public class ResidenciaControlador {
     @PUT
     @Path("/{id}")
     public Response actualizar(@PathParam("id") int id, Residencia residencia) {
-        boolean exito = servicio.actualizar(id, residencia).contains("correctamente");
+        boolean exito = servicio.actualizarResidencia(id,residencia);
         if (exito) {
             return Response.ok("Residencia actualizada correctamente").build();
         } else {
@@ -60,7 +60,7 @@ public class ResidenciaControlador {
     @DELETE
     @Path("/{id}")
     public Response eliminar(@PathParam("id") int id) {
-        boolean exito = servicio.eliminar(id).contains("correctamente");
+        boolean exito = servicio.eliminarResidencia(id);
         if (exito) {
             return Response.ok("Residencia eliminada correctamente").build();
         } else {

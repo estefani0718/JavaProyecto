@@ -10,7 +10,7 @@ package Controlador;
  */
 import Modelo.Roles;
 import Modelo.RolesDao;
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.util.List;
 

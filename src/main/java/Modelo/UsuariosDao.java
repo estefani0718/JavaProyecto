@@ -4,7 +4,7 @@
  */
 package Modelo;
 
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,8 +53,61 @@ public class UsuariosDao {
 
         return null; // Si no se encuentra
     }
+    //-------------------------------------------------------------------
+    
+   
+   //-------------------------------------------------------------------
+    public List<Integer> obtenerIdsUsuarios() throws SQLException {
+    List<Integer> lista = new ArrayList<>();
+    String sql = "SELECT id FROM Usuarios";
+    try (Connection con = ClaseConexion.obtenerConexion();
+         PreparedStatement stmt = con.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            lista.add(rs.getInt("id"));
+        }
+    }
+    return lista;
+  }
+//---------------------------------------
+    public List<Long> obtenerDocumentosUsuarios() throws SQLException {
+    List<Long> lista = new ArrayList<>();
+    String sql = "SELECT documento_usuario FROM Usuarios";
+    try (Connection con = ClaseConexion.obtenerConexion();
+         PreparedStatement stmt = con.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            lista.add(rs.getLong("documento_usuario"));
+        }
+    }
+    return lista;
+}
 
-
+//-----------------------------------------------------------------------------------
+    public List<UsuariosDto> listarPorRol(String nombreRol) throws SQLException {
+    List<UsuariosDto> lista = new ArrayList<>();
+    String sql = """
+        SELECT u.id_usuario, u.nombre_usuario, u.documento_usuario, r.nombre_rol
+        FROM Usuarios u
+        JOIN Roles r ON u.codigo_rol = r.codigo_rol
+        WHERE r.nombre_rol = ?
+    """;
+    try (Connection con = ClaseConexion.obtenerConexion();
+         PreparedStatement stmt = con.prepareStatement(sql)) {
+        stmt.setString(1, nombreRol);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            UsuariosDto usuario = new UsuariosDto();
+            usuario.setId(rs.getInt("id"));
+            usuario.setNombre_usuario(rs.getString("nombre_usuario"));
+            usuario.setDocumento_usuario(rs.getLong("documento_usuario"));
+            usuario.setRol(rs.getString("nombre_rol"));
+            lista.add(usuario);
+        }
+    }
+    return lista;
+}
+ //-------------------------------------------------------------------------------------
     // ------------------------ REGISTRAR USUARIO CON STRINGS LEGIBLES ------------------------
     public boolean registrarUsuarioConNombres(UsuariosDto dto) throws SQLException {
      String sql = "INSERT INTO Usuarios (" +
@@ -84,9 +137,28 @@ public class UsuariosDao {
             ps.setInt(10, idResidencia);
             ps.setString(11, dto.getUsuario());
             ps.setString(12, dto.getContrasena());
+            
+            System.out.println("Nombre: " + dto.getNombre_usuario());
+            System.out.println("Documento: " + dto.getDocumento_usuario());
+            System.out.println("ID Tipo Documento: " + idTipoDoc);
+            System.out.println("Género: " + dto.getGenero_usuario());
+            System.out.println("Dirección: " + dto.getDireccion_usuario());
+            System.out.println("Teléfono: " + dto.getTelefono_usuario());
+            System.out.println("Correo: " + dto.getCorreo());
+            System.out.println("ID Estado: " + idEstado);
+            System.out.println("ID Rol: " + idRol);
+            System.out.println("ID Residencia: " + idResidencia);
+            System.out.println("Usuario: " + dto.getUsuario());
+            System.out.println("Contraseña: " + dto.getContrasena());
 
+            
             return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println(" Error al registrar usuario: " + e.getMessage());
+            e.printStackTrace(); // 
         }
+     
+      return false; 
     }
 
     // ------------------------ LISTAR USUARIOS CON STRINGS LEGIBLES ------------------------

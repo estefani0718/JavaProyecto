@@ -6,7 +6,7 @@ package Controlador;
 
 import Modelo.TipoPaquete;
 import Modelo.TipoPaqueteDao;
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;

@@ -5,7 +5,7 @@ package Controlador;
 
 import Controlador.UsuariosServicios;
 import Modelo.UsuariosDto;
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.SQLException;
 import java.util.List;
 import javax.ws.rs.Consumes;
@@ -33,7 +33,9 @@ import javax.ws.rs.core.Response;
 public class UsuarioControlador {
 
     private final UsuariosServicios servicio = new UsuariosServicios();
-
+    
+     
+   
     /**
      * Lista todos los usuarios con nombres legibles de relaciones.
      * @return Lista de usuarios o error 500.
@@ -45,6 +47,46 @@ public class UsuarioControlador {
             return Response.ok(lista).build();
         } catch (SQLException e) {
             return Response.serverError().entity("Error al listar usuarios: " + e.getMessage()).build();
+        }
+    }
+    //-----------------------------------------------------------
+    @GET
+    @Path("/ids")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response obtenerIdsUsuarios() {
+        try {
+            List<Integer> ids = servicio.obtenerIdsUsuarios();
+            return Response.ok(ids).build();
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Error al obtener IDs de usuarios").build();
+        }
+    }
+ //-----------------------------------------------
+    @GET
+    @Path("/documentos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response obtenerDocumentosUsuarios() {
+        try {
+            List<Long> documentos = servicio.obtenerDocumentosUsuarios();
+            return Response.ok(documentos).build();
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Error al obtener documentos de usuarios").build();
+        }
+    }
+
+    
+    @GET
+    @Path("/rol/{nombreRol}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listarPorRol(@PathParam("nombreRol") String nombreRol) {
+        try {
+            List<UsuariosDto> usuarios = servicio.listarUsuariosPorRol(nombreRol);
+            return Response.ok(usuarios).build();
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Error al listar usuarios por rol").build();
         }
     }
 
@@ -99,6 +141,11 @@ public class UsuarioControlador {
     @Produces(MediaType.TEXT_PLAIN)
     public Response registrarUsuario(UsuariosDto dto) {
         try {
+             String error = middleware.validar(dto);
+              if (error != null) {
+                    // Retornar error al frontend
+                    return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+                }
             boolean registrado = servicio.registrarUsuarioDesdeDTO(dto);
             if (registrado) {
                 return Response.status(Response.Status.CREATED).entity("Usuario registrado correctamente").build();
@@ -183,10 +230,19 @@ public class UsuarioControlador {
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(UsuariosDto dto) {
         try {
+            // Validar usuario y contraseña con middleware
+            String error = loginMiddleware.validarLogin(dto.getUsuario(), dto.getContrasena());
+            if (error != null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                               .entity("{\"error\": \"" + error + "\"}")
+                               .build();
+            }
+
+            // Si pasa la validación, intentamos autenticar
             UsuariosDto usuarioValidado = servicio.login(dto.getUsuario(), dto.getContrasena());
 
             if (usuarioValidado != null) {
-                return Response.ok(usuarioValidado).build();
+                return Response.ok(usuarioValidado).build(); // Autenticado correctamente
             } else {
                 return Response.status(Response.Status.UNAUTHORIZED)
                                .entity("{\"mensaje\": \"Credenciales inválidas\"}")
@@ -195,9 +251,10 @@ public class UsuarioControlador {
 
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity("{\"error\": \"Error del servidor\"}")
+                           .entity("{\"error\": \"Error del servidor: " + e.getMessage() + "\"}")
                            .build();
         }
     }
+
 
 }

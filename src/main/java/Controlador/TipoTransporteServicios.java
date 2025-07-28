@@ -29,49 +29,53 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class TipoTransporteServicios {
 
-    TipoTransporteDao dao = new TipoTransporteDao();
+     private final TipoTransporteDao dao;
 
-    @GET
-    public List<TipoTransporte> obtenerTodos() {
+    public TipoTransporteServicios() {
+        this.dao = new TipoTransporteDao();
+    }
+
+    /**
+     * Inserta un nuevo registro de TipoTransporte en la base de datos.
+     * @param transporte Objeto de tipo TipoTransporte.
+     * @return true si la operación fue exitosa, false si falló.
+     */
+    public boolean insertarTipoTransporte(TipoTransporte transporte) {
+        return dao.insertar(transporte);
+    }
+
+    /**
+     * Obtiene todos los registros de TipoTransporte.
+     * @return Lista de objetos TipoTransporte.
+     */
+    public List<TipoTransporte> listarTodos() {
         return dao.obtenerTodos();
     }
 
-    @GET
-    @Path("/{placa}")
-    public TipoTransporte obtenerPorPlaca(@PathParam("placa") String placa) {
+    /**
+     * Obtiene un TipoTransporte por su placa.
+     * @param placa Placa del vehículo.
+     * @return Objeto TipoTransporte si lo encuentra, null si no existe.
+     */
+    public TipoTransporte obtenerPorPlaca(String placa) {
         return dao.obtenerPorPlaca(placa);
     }
 
-    @POST
-    public String insertar(TipoTransporte transporte) {
-        boolean exito = dao.insertar(transporte);
-        if (exito) {
-            return "Tipo de transporte insertado correctamente.";
-        } else {
-            return "Error al insertar tipo de transporte.";
-        }
+    /**
+     * Actualiza los datos de un TipoTransporte según su placa.
+     * @param transporte Objeto con datos actualizados.
+     * @return true si se actualizó correctamente, false si falló.
+     */
+    public boolean actualizarTipoTransporte(TipoTransporte transporte) {
+        return dao.actualizar(transporte);
     }
 
-    @PUT
-    @Path("/{placa}")
-    public String actualizar(@PathParam("placa") String placa, TipoTransporte transporte) {
-        transporte.setPlaca(placa);
-        boolean exito = dao.actualizar(transporte);
-        if (exito) {
-            return "Tipo de transporte actualizado correctamente.";
-        } else {
-            return "Error al actualizar tipo de transporte.";
-        }
-    }
-
-    @DELETE
-    @Path("/{placa}")
-    public String eliminar(@PathParam("placa") String placa) {
-        boolean exito = dao.eliminar(placa);
-        if (exito) {
-            return "Tipo de transporte eliminado correctamente.";
-        } else {
-            return "Error al eliminar tipo de transporte.";
-        }
+    /**
+     * Elimina un TipoTransporte de la base de datos por su placa.
+     * @param placa Placa del vehículo.
+     * @return true si se eliminó correctamente, false si falló.
+     */
+    public boolean eliminarTipoTransporte(String placa) {
+        return dao.eliminar(placa);
     }
 }

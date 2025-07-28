@@ -3,6 +3,7 @@ C:\principal\Java\JavaProyecto\src\main\java\Controlador\CORSFilter.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\EstadosDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TipoPaqueteDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\UsuariosDto.java
+C:\principal\Java\JavaProyecto\src\main\java\Controlador\loginMiddleware.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\FacturaServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TransporteUsuarioServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\RolesDao.java
@@ -15,14 +16,16 @@ C:\principal\Java\JavaProyecto\src\main\java\Modelo\Roles.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoDocumentoServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\RolesControlador.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\CategoriaPaquetesDao.java
-C:\principal\Java\JavaProyecto\src\main\java\Utils\ClaseConexion.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TransporteUsuarioControlador.java
+C:\principal\Java\JavaProyecto\src\main\java\Conexion\ClaseConexion.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\ResidenciaServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoTransporteControlador.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TipoTransporteDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoPaqueteControlador.java
+C:\principal\Java\JavaProyecto\src\main\java\Conexion\TextConexion.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoTransporteServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\FacturaControlador.java
+C:\principal\Java\JavaProyecto\src\main\java\Controlador\middleware.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TipoPaquete.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TransporteUsuario.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\ResidenciaControlador.java
@@ -36,7 +39,6 @@ C:\principal\Java\JavaProyecto\src\main\java\Modelo\Estados.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\CategoriaPaqueteServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Controlador\TipoPaqueteServicios.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TipoDocumentoDAO.java
-C:\principal\Java\JavaProyecto\src\main\java\Utils\TextConexion.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\FacturaDao.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\TipoTransporte.java
 C:\principal\Java\JavaProyecto\src\main\java\Modelo\Residencia.java

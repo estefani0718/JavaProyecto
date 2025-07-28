@@ -1,6 +1,6 @@
 package Modelo;
 
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

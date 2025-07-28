@@ -10,9 +10,10 @@ package Controlador;
  */
 import Modelo.Residencia;
 import Modelo.ResidenciaDao;
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,48 +26,65 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ResidenciaServicios {
 
-    private ResidenciaDao dao;
-
-    public ResidenciaServicios() {
-        Connection conexion = ClaseConexion.obtenerConexion(); // Asegúrate de tener esta clase en Utils
-        dao = new ResidenciaDao();
-    }
-
-    @GET
-    public List<Residencia> obtenerTodas() {
+   
+    /**
+     * Listar todas las residencias.
+     * @return lista de residencias
+     */
+    public List<Residencia> listarResidencias() {
+        ResidenciaDao dao = new ResidenciaDao();
         return dao.obtenerTodas();
     }
 
-    @GET
-    @Path("/{id}")
-    public Residencia obtenerPorId(@PathParam("id") int id) {
+    /**
+     * Buscar una residencia por su ID.
+     * @param id identificador de la residencia
+     * @return objeto Residencia o null si no se encuentra
+     */
+    public Residencia buscarResidenciaPorId(int id) {
+        ResidenciaDao dao = new ResidenciaDao();
         return dao.obtenerPorId(id);
     }
 
-    @POST
-    public String insertar(Residencia residencia) {
-        boolean exito = dao.insertar(residencia);
-        return exito
-            ? "Residencia insertada correctamente."
-            : "Error al insertar residencia.";
+    /**
+     * Buscar el ID de una residencia por el nombre del municipio.
+     * @param nombre nombre del municipio
+     * @return ID de la residencia
+     * @throws SQLException si no se encuentra el nombre
+     */
+    public int obtenerIdPorNombre(String nombre) throws SQLException {
+        ResidenciaDao dao = new ResidenciaDao();
+        return dao.obtenerIdPorNombre(nombre);
     }
 
-    @PUT
-    @Path("/{id}")
-    public String actualizar(@PathParam("id") int id, Residencia residencia) {
-        residencia.setCodigoResidencia(id);
-        boolean exito = dao.actualizar(residencia);
-        return exito
-            ? "Residencia actualizada correctamente."
-            : "Error al actualizar residencia.";
+    /**
+     * Registrar una nueva residencia.
+     * @param residencia objeto Residencia con el nombre del municipio
+     * @return true si se insertó correctamente
+     */
+    public boolean registrarResidencia(Residencia residencia) {
+        ResidenciaDao dao = new ResidenciaDao();
+        return dao.insertar(residencia);
     }
 
-    @DELETE
-    @Path("/{id}")
-    public String eliminar(@PathParam("id") int id) {
-        boolean exito = dao.eliminar(id);
-        return exito
-            ? "Residencia eliminada correctamente."
-            : "Error al eliminar residencia.";
+   /**
+     * Actualizar una residencia existente por su ID.
+     * @param id ID que llega por URL
+     * @param residencia objeto con el nuevo nombre
+     */
+    public boolean actualizarResidencia(int id, Residencia residencia) {
+        ResidenciaDao dao = new ResidenciaDao();
+        residencia.setCodigoResidencia(id); // Muy importante: establecer el ID
+        return dao.actualizar(residencia);
+    }
+
+    /**
+     * Eliminar una residencia por ID.
+     * @param id ID de la residencia
+     * @return true si se eliminó correctamente
+     */
+    public boolean eliminarResidencia(int id) {
+        ResidenciaDao dao = new ResidenciaDao();
+        return dao.eliminar(id);
     }
 }

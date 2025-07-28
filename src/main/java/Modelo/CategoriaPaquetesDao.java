@@ -6,6 +6,7 @@
 package Modelo;
 
 // Importación de clases necesarias para trabajar con base de datos y listas
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,8 +24,8 @@ public class CategoriaPaquetesDao {
     private Connection conexion;
 
     // Constructor que recibe la conexión como parámetro
-    public CategoriaPaquetesDao(Connection conexion) {
-        this.conexion = conexion;
+    public CategoriaPaquetesDao() {
+        this.conexion = ClaseConexion.obtenerConexion();
     }
 
     // Método para obtener todas las filas de la tabla CategoriaPaquete

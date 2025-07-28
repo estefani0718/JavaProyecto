@@ -25,6 +25,19 @@ public class UsuariosServicios {
     public UsuariosDto login(String usuario, String contrasena) throws SQLException {
        return usuariosDao.validarLogin(usuario, contrasena);
     }
+    //-----------------------------------------
+    public List<Integer> obtenerIdsUsuarios() throws SQLException {
+    return usuariosDao.obtenerIdsUsuarios();
+    }
+
+    //-------------------------------------------
+    public List<UsuariosDto> listarUsuariosPorRol(String nombreRol) throws SQLException {
+    return usuariosDao.listarPorRol(nombreRol);
+   }
+  //-------------------------------------------
+    public List<Long> obtenerDocumentosUsuarios() throws SQLException {
+    return usuariosDao.obtenerDocumentosUsuarios();
+}
 
     /**
      * Lista todos los usuarios con los nombres legibles de las relaciones (no solo IDs).

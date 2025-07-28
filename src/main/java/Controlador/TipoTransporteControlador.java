@@ -34,7 +34,7 @@ public class TipoTransporteControlador {
 
     @GET
     public List<TipoTransporte> listar() {
-        return servicio.obtenerTodos();
+        return servicio.listarTodos();
     }
 
     @GET
@@ -45,7 +45,7 @@ public class TipoTransporteControlador {
 
     @POST
     public Response guardar(TipoTransporte transporte) {
-        boolean exito = servicio.insertar(transporte).contains("correctamente");
+        boolean exito = servicio.insertarTipoTransporte(transporte);
         if (exito) {
             return Response.status(Response.Status.CREATED).entity("Tipo de transporte registrado exitosamente").build();
         } else {
@@ -56,7 +56,7 @@ public class TipoTransporteControlador {
     @PUT
     @Path("/{placa}")
     public Response actualizar(@PathParam("placa") String placa, TipoTransporte transporte) {
-        boolean exito = servicio.actualizar(placa, transporte).contains("correctamente");
+        boolean exito = servicio.actualizarTipoTransporte(transporte);
         if (exito) {
             return Response.ok("Tipo de transporte actualizado correctamente").build();
         } else {
@@ -67,7 +67,7 @@ public class TipoTransporteControlador {
     @DELETE
     @Path("/{placa}")
     public Response eliminar(@PathParam("placa") String placa) {
-        boolean exito = servicio.eliminar(placa).contains("correctamente");
+        boolean exito = servicio.eliminarTipoTransporte(placa);
         if (exito) {
             return Response.ok("Tipo de transporte eliminado correctamente").build();
         } else {

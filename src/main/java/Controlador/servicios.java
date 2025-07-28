@@ -4,7 +4,7 @@
  */
 package Controlador;
 
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;

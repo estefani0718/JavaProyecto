@@ -10,7 +10,7 @@ package Controlador;
  */
 import Modelo.CategoriaPaquetesDao;
 import Modelo.CategoriasPaquetes;
-import Utils.ClaseConexion;
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.util.List;
 
@@ -18,10 +18,10 @@ public class CategoriaPaqueteServicios {
 
     private CategoriaPaquetesDao dao;
 
-    public CategoriaPaqueteServicios() {
-        Connection conexion = ClaseConexion.obtenerConexion();
-        this.dao = new CategoriaPaquetesDao(conexion);
+   public CategoriaPaqueteServicios() {
+         this.dao = new CategoriaPaquetesDao(); // ← Aquí se instancia correctamente
     }
+
 
     public List<CategoriasPaquetes> obtenerTodas() {
         return dao.obtenerTodas();

@@ -15,18 +15,39 @@ de entidades relacionadas en lugar de sus IDs numéricos.
 */
 public class UsuariosDto {
     private int id;
-    private String nombre_usuario;
+    private String nombre_usuario; 
     private long documento_usuario;
     private String tipo_documento;  // Ej: "Cédula"
     private String genero_usuario;
     private String direccion_usuario;
     private String telefono_usuario;
     private String correo;
-    private String estado;          // Ej: "Activo"
-    private String rol;             // Ej: "Administrador"
-    private String residencia;      // Ej: "Bogotá" 
+    private String estado;          
+    private String rol;             
+    private String residencia;      
     private String usuario;
     private String contrasena;
+    
+    
+     public UsuariosDto(int id, String nombre_usuario, long documento_usuario, String tipo_documento, String genero_usuario, String direccion_usuario, String telefono_usuario, String correo, String estado, String rol, String residencia, String usuario, String contrasena) {
+        this.id = id;
+        this.nombre_usuario = nombre_usuario;
+        this.documento_usuario = documento_usuario;
+        this.tipo_documento = tipo_documento;
+        this.genero_usuario = genero_usuario;
+        this.direccion_usuario = direccion_usuario;
+        this.telefono_usuario = telefono_usuario;
+        this.correo = correo;
+        this.estado = estado;
+        this.rol = rol;
+        this.residencia = residencia;
+        this.usuario = usuario;
+        this.contrasena = contrasena;
+    }
+
+    UsuariosDto() {
+        
+    }
 
     // Getters y setters (puedes generarlos con tu IDE)
     
