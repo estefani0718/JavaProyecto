@@ -4,8 +4,8 @@
  */
 package Controlador;
 
-import Modelo.TipoPaquete;
-import java.util.List;
+
+import Modelo.TipoPaqueteDto;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,65 +16,78 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
-/**
- *
- * @author eeste
- */
-@Path("/tipopaquete") // Ruta base para acceder al recurso
+@Path("/tipopaquete")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class TipoPaqueteControlador {
 
-    TipoPaqueteServicios servicio = new TipoPaqueteServicios();
+    private final TipoPaqueteServicios servicio = new TipoPaqueteServicios();
 
-    // Obtener todos los paquetes activos
+    /**
+     * Lista todos los paquetes.
+     */
     @GET
-    public List<TipoPaquete> obtenerTodos() {
-        return servicio.obtenerTodos();
+    public Response listar() {
+        List<TipoPaqueteDto> lista = servicio.listar();
+        return Response.ok(lista).build();
     }
 
-    // Obtener un paquete por su ID
-    @GET
-    @Path("/{id}")
-    public TipoPaquete obtenerPorId(@PathParam("id") int id) {
-        return servicio.obtenerPorId(id);
-    }
-
-    // Insertar un nuevo tipo de paquete
+    /**
+     * Registra un nuevo tipo de paquete.
+     */
     @POST
-    public Response insertar(TipoPaquete paquete) {
-        boolean insertado = servicio.insertar(paquete);
-        if (insertado) {
-            return Response.status(Response.Status.CREATED).entity("Tipo de paquete creado correctamente").build();
+    public Response guardar(TipoPaqueteDto dto) {
+        boolean creado = servicio.guardar(dto);
+        if (creado) {
+            return Response.status(Response.Status.CREATED).entity("Paquete registrado correctamente").build();
         } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Error al crear tipo de paquete").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo registrar el paquete").build();
         }
     }
 
-    // Actualizar un tipo de paquete
-    @PUT
-    public Response actualizar(TipoPaquete paquete) {
-        boolean actualizado = servicio.actualizar(paquete);
-        if (actualizado) {
-            return Response.ok("Tipo de paquete actualizado correctamente").build();
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Error al actualizar tipo de paquete").build();
-        }
-    }
-
-    // Eliminar lógicamente un tipo de paquete (estado = 3)
-    @DELETE
+    /**
+     * Obtiene un paquete por su ID.
+     */
+    @GET
     @Path("/{id}")
-    public Response eliminar(@PathParam("id") int id) {
-        boolean eliminado = servicio.eliminarLogicamente(id);
-
-        if (eliminado) {
-            return Response.ok("Tipo de paquete eliminado correctamente (lógico)").build();
+    public Response buscarPorId(@PathParam("id") int id) {
+        TipoPaqueteDto dto = servicio.buscarPorId(id);
+        if (dto != null) {
+            return Response.ok(dto).build();
         } else {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("No se puede eliminar este tipo de paquete porque está relacionado con otros datos.")
-                    .build();
+            return Response.status(Response.Status.NOT_FOUND).entity("Paquete no encontrado").build();
+        }
+    }
+
+    /**
+     * Actualiza un paquete por su ID.
+     */
+    @PUT
+    public Response actualizar(TipoPaqueteDto dto) {
+        boolean actualizado = servicio.actualizarPorId(dto);
+        if (actualizado) {
+            return Response.ok("Paquete actualizado correctamente").build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo actualizar el paquete").build();
+        }
+    }
+    
+    /**
+     * Elimina lógicamente un paquete (por ID y estado nuevo).
+     */
+     /**
+     * Elimina lógicamente un paquete (por ID y estado nuevo).
+     */
+    @DELETE
+    @Path("/{id}/{nuevoEstado}")
+    public Response eliminar(@PathParam("id") int id, @PathParam("nuevoEstado") int nuevoEstado) {
+        boolean eliminado = servicio.eliminarLogico(id, nuevoEstado);
+        if (eliminado) {
+            return Response.ok("Paquete eliminado lógicamente").build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo eliminar el paquete").build();
         }
     }
 }

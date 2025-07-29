@@ -13,131 +13,154 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author eeste
+ * DAO (Data Access Object) para la entidad TipoPaquete.
+ * Gestiona las operaciones CRUD con la base de datos.
  */
 public class TipoPaqueteDao {
-    private Connection conexion;
 
-    public TipoPaqueteDao(Connection conexion) {
-        this.conexion = conexion;
-    }
+    /**
+     * Lista todos los paquetes registrados en la base de datos.
+     * @return Lista de TipoPaqueteDto
+     */
+    public List<TipoPaqueteDto> listar() {
+        List<TipoPaqueteDto> lista = new ArrayList<>();
+        String sql = "SELECT * FROM TipoPaquete";
 
-    // Obtener todos los paquetes que no estén marcados como eliminados (estado lógico)
-    public List<TipoPaquete> obtenerTodos() {
-        List<TipoPaquete> lista = new ArrayList<>();
-        String sql = "SELECT * FROM TipoPaquete WHERE id_estado != 3"; // Suponiendo que 3 es 'eliminado'
-
-        try (PreparedStatement stmt = conexion.prepareStatement(sql);
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                TipoPaquete paquete = new TipoPaquete();
-                paquete.setCodigoTpaquete(rs.getInt("codigo_Tpaquete"));
-                paquete.setNombrePaquete(rs.getString("nombre_paquete"));
-                paquete.setDetallesAdicionales(rs.getString("detalles_adicionales"));
-                paquete.setCodigoTransporteUsuario(rs.getInt("codigo_TransporteUsuario"));
-                paquete.setCodigoCategoria(rs.getInt("codigo_paquete"));
-                paquete.setCodigoFactura(rs.getInt("codigo_factura"));
-                paquete.setIdEstado(rs.getInt("id_estado"));
-                paquete.setOrigen(rs.getString("origen"));
-                paquete.setDestino(rs.getString("destino"));
-                paquete.setValorPaquete(rs.getBigDecimal("valor_paquete"));
+                TipoPaqueteDto paquete = new TipoPaqueteDto(
+                    rs.getInt("codigo_Tpaquete"),
+                    rs.getString("nombre_paquete"),
+                    rs.getString("detalles_adicionales"),
+                    rs.getInt("codigo_paquete"),
+                    rs.getInt("codigo_factura"),
+                    rs.getInt("id_estado"),
+                    rs.getString("origen"),
+                    rs.getString("metodo_pago"),
+                    rs.getString("destino")
+                );
                 lista.add(paquete);
             }
-
         } catch (SQLException e) {
-            System.out.println("Error al obtener paquetes: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return lista;
     }
 
-    // Obtener un paquete por su ID
-    public TipoPaquete obtenerPorId(int id) {
-        TipoPaquete paquete = null;
-        String sql = "SELECT * FROM TipoPaquete WHERE codigo_Tpaquete = ?";
+    /**
+     * Guarda un nuevo paquete en la base de datos.
+     * @param paquete Objeto TipoPaqueteDto con los datos a registrar
+     * @return true si el registro fue exitoso
+     */
+    public boolean guardar(TipoPaqueteDto paquete) {
+        String sql = "INSERT INTO TipoPaquete(nombre_paquete, detalles_adicionales, codigo_paquete, codigo_factura, id_estado, origen, metodo_pago, destino, valor_paquete) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0.0)";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, paquete.getNombrePaquete());
+            stmt.setString(2, paquete.getDetallesAdicionales());
+            stmt.setInt(3, paquete.getCodigoPaquete());
+            stmt.setInt(4, paquete.getCodigoFactura());
+            stmt.setInt(5, paquete.getIdEstado());
+            stmt.setString(6, paquete.getOrigen());
+            stmt.setString(7, paquete.getMetodoPago());
+            stmt.setString(8, paquete.getDestino());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Busca un paquete por su ID.
+     * @param id ID del paquete
+     * @return TipoPaqueteDto si se encuentra, null si no
+     */
+    public TipoPaqueteDto buscarPorId(int id) {
+        String sql = "SELECT * FROM TipoPaquete WHERE codigo_Tpaquete = ?";
+        TipoPaqueteDto paquete = null;
+
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                paquete = new TipoPaquete();
-                paquete.setCodigoTpaquete(rs.getInt("codigo_Tpaquete"));
-                paquete.setNombrePaquete(rs.getString("nombre_paquete"));
-                paquete.setDetallesAdicionales(rs.getString("detalles_adicionales"));
-                paquete.setCodigoTransporteUsuario(rs.getInt("codigo_TransporteUsuario"));
-                paquete.setCodigoCategoria(rs.getInt("codigo_paquete"));
-                paquete.setCodigoFactura(rs.getInt("codigo_factura"));
-                paquete.setIdEstado(rs.getInt("id_estado"));
-                paquete.setOrigen(rs.getString("origen"));
-                paquete.setDestino(rs.getString("destino"));
-                paquete.setValorPaquete(rs.getBigDecimal("valor_paquete"));
+                paquete = new TipoPaqueteDto(
+                    rs.getInt("codigo_Tpaquete"),
+                    rs.getString("nombre_paquete"),
+                    rs.getString("detalles_adicionales"),
+                    rs.getInt("codigo_paquete"),
+                    rs.getInt("codigo_factura"),
+                    rs.getInt("id_estado"),
+                    rs.getString("origen"),
+                    rs.getString("metodo_pago"),
+                    rs.getString("destino")
+                );
             }
-
         } catch (SQLException e) {
-            System.out.println("Error al obtener paquete por ID: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return paquete;
     }
 
-    // Insertar un nuevo paquete
-    public boolean insertar(TipoPaquete paquete) {
-        String sql = "INSERT INTO TipoPaquete (nombre_paquete, detalles_adicionales, codigo_TransporteUsuario, codigo_paquete, codigo_factura, id_estado, origen, destino, valor_paquete) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    /**
+     * Actualiza los datos de un paquete por su ID.
+     * @param paquete Objeto TipoPaqueteDto con los nuevos datos
+     * @return true si se actualizó correctamente
+     */
+    public boolean actualizarPorId(TipoPaqueteDto paquete) {
+        String sql = "UPDATE TipoPaquete SET nombre_paquete=?, detalles_adicionales=?, codigo_paquete=?, " +
+                     "codigo_factura=?, id_estado=?, origen=?, metodo_pago=?, destino=? WHERE codigo_Tpaquete=?";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
             stmt.setString(1, paquete.getNombrePaquete());
             stmt.setString(2, paquete.getDetallesAdicionales());
-            stmt.setInt(3, paquete.getCodigoTransporteUsuario());
-            stmt.setInt(4, paquete.getCodigoCategoria());
-            stmt.setInt(5, paquete.getCodigoFactura());
-            stmt.setInt(6, paquete.getIdEstado());
-            stmt.setString(7, paquete.getOrigen());
+            stmt.setInt(3, paquete.getCodigoPaquete());
+            stmt.setInt(4, paquete.getCodigoFactura());
+            stmt.setInt(5, paquete.getIdEstado());
+            stmt.setString(6, paquete.getOrigen());
+            stmt.setString(7, paquete.getMetodoPago());
             stmt.setString(8, paquete.getDestino());
-            stmt.setBigDecimal(9, paquete.getValorPaquete());
-            return stmt.executeUpdate() > 0;
+            stmt.setInt(9, paquete.getCodigoTpaquete());
 
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Error al insertar paquete: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
-    // Actualizar un paquete
-    public boolean actualizar(TipoPaquete paquete) {
-        String sql = "UPDATE TipoPaquete SET nombre_paquete = ?, detalles_adicionales = ?, codigo_TransporteUsuario = ?, codigo_paquete = ?, codigo_factura = ?, id_estado = ?, origen = ?, destino = ?, valor_paquete = ? WHERE codigo_Tpaquete = ?";
+    /**
+     * Elimina lógicamente un paquete (cambia su estado).
+     * @param id ID del paquete
+     * @param nuevoEstado ID del nuevo estado (por ejemplo, 0 para inactivo)
+     * @return true si se cambió el estado correctamente
+     */
+    public boolean eliminarLogico(int id, int nuevoEstado) {
+        String sql = "UPDATE TipoPaquete SET id_estado = ? WHERE codigo_Tpaquete = ?";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, paquete.getNombrePaquete());
-            stmt.setString(2, paquete.getDetallesAdicionales());
-            stmt.setInt(3, paquete.getCodigoTransporteUsuario());
-            stmt.setInt(4, paquete.getCodigoCategoria());
-            stmt.setInt(5, paquete.getCodigoFactura());
-            stmt.setInt(6, paquete.getIdEstado());
-            stmt.setString(7, paquete.getOrigen());
-            stmt.setString(8, paquete.getDestino());
-            stmt.setBigDecimal(9, paquete.getValorPaquete());
-            stmt.setInt(10, paquete.getCodigoTpaquete());
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, nuevoEstado);
+            stmt.setInt(2, id);
+
             return stmt.executeUpdate() > 0;
-
         } catch (SQLException e) {
-            System.out.println("Error al actualizar paquete: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Eliminación lógica del paquete (cambiar estado a 'eliminado')
-    public boolean eliminarLogicamente(int id) {
-        String sql = "UPDATE TipoPaquete SET id_estado = 3 WHERE codigo_Tpaquete = ?";
-
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error al eliminar paquete: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

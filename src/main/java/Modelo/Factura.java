@@ -21,7 +21,9 @@ public class Factura {
     private long documentoUsuario;    // Documento del cliente (relación con tabla Usuarios)
     private String observaciones;     // Comentarios u observaciones sobre la factura
     private double precioTotal;       // Valor total de la factura
+    private int id_estado;
 
+   
     // Getters y Setters
     public int getCodigoFactura() {
         return codigoFactura;
@@ -61,5 +63,12 @@ public class Factura {
 
     public void setPrecioTotal(double precioTotal) {
         this.precioTotal = precioTotal;
+    }
+     public int getId_estado() {
+        return id_estado;
+    }
+
+    public void setId_estado(int id_estado) {
+        this.id_estado = id_estado;
     }
 }

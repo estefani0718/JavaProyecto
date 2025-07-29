@@ -4,6 +4,7 @@
  */
 package Modelo;
 
+import Conexion.ClaseConexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,108 +17,155 @@ import java.util.List;
  * @author eeste
  */
 
-/**
- * DAO para realizar operaciones CRUD sobre la tabla TransporteUsuario.
- */
 public class TransporteUsuarioDao {
-    private Connection conexion;
+ private final EstadosDao estadoDao= new EstadosDao();
+    /**
+     * Lista todos los registros de TransporteUsuario con nombres de estado.
+     */
+    public List<TransporteUsuarioDto> listar() {
+        List<TransporteUsuarioDto> lista = new ArrayList<>();
+        String sql = """
+            SELECT tu.codigo_TransporteUsuario, tu.placa, tu.documento_usuario,
+                   tu.anios_experiencia, e.nombre_estado
+            FROM TransporteUsuario tu
+            JOIN Estados e ON tu.id_estado = e.id_estado
+        """;
 
-    public TransporteUsuarioDao(Connection conexion) {
-        this.conexion = conexion;
-    }
-
-    // Obtener todos los registros de TransporteUsuario
-    public List<TransporteUsuario> obtenerTodos() {
-        List<TransporteUsuario> lista = new ArrayList<>();
-        String sql = "SELECT * FROM TransporteUsuario";
-
-        try (PreparedStatement stmt = conexion.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                TransporteUsuario tu = new TransporteUsuario();
-                tu.setCodigoTransporteUsuario(rs.getInt("codigo_TransporteUsuario"));
-                tu.setPlaca(rs.getString("placa"));
-                tu.setDocumentoUsuario(rs.getLong("documento_usuario"));
-                tu.setAniosExperiencia(rs.getInt("anios_experiencia"));
-                lista.add(tu);
+                TransporteUsuarioDto dto = new TransporteUsuarioDto(
+                    rs.getInt("codigo_TransporteUsuario"),
+                    rs.getString("placa"),
+                    rs.getLong("documento_usuario"),
+                    rs.getInt("anios_experiencia"),
+                    rs.getString("nombre_estado")
+                );
+                lista.add(dto);
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al obtener transporte de usuario: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return lista;
     }
 
-    // Obtener un registro específico por ID
-    public TransporteUsuario obtenerPorId(int id) {
-        TransporteUsuario tu = null;
-        String sql = "SELECT * FROM TransporteUsuario WHERE codigo_TransporteUsuario = ?";
+    /**
+     * Guarda un nuevo TransporteUsuario en la base de datos.
+     */
+    public boolean guardar(TransporteUsuarioDto dto) {
+        String sql = """
+            INSERT INTO TransporteUsuario (placa, documento_usuario, anios_experiencia, id_estado)
+            VALUES (?, ?, ?, ?)
+        """;
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            if (rs.next()) {
-                tu = new TransporteUsuario();
-                tu.setCodigoTransporteUsuario(rs.getInt("codigo_TransporteUsuario"));
-                tu.setPlaca(rs.getString("placa"));
-                tu.setDocumentoUsuario(rs.getLong("documento_usuario"));
-                tu.setAniosExperiencia(rs.getInt("anios_experiencia"));
+         int idEstado = estadoDao.obtenerIdPorNombre(dto.getEstado()) ;
+
+            ps.setString(1, dto.getPlaca());
+            ps.setLong(2, dto.getDocumentoUsuario());
+            ps.setInt(3, dto.getAniosExperiencia());
+            ps.setInt(4, idEstado);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Busca un TransporteUsuario por su ID.
+     */
+    public TransporteUsuarioDto buscarPorId(int id) {
+        String sql = """
+            SELECT tu.codigo_TransporteUsuario, tu.placa, tu.documento_usuario,
+                   tu.anios_experiencia, e.nombre_estado
+            FROM TransporteUsuario tu
+            JOIN Estados e ON tu.id_estado = e.id_estado
+            WHERE tu.codigo_TransporteUsuario = ?
+        """;
+
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new TransporteUsuarioDto(
+                        rs.getInt("codigo_TransporteUsuario"),
+                        rs.getString("placa"),
+                        rs.getLong("documento_usuario"),
+                        rs.getInt("anios_experiencia"),
+                        rs.getString("nombre_estado")
+                    );
+                }
             }
 
         } catch (SQLException e) {
-            System.out.println("Error al obtener transporte de usuario por ID: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        return tu;
+        return null;
     }
 
-    // Insertar un nuevo registro
-    public boolean insertar(TransporteUsuario tu) {
-        String sql = "INSERT INTO TransporteUsuario (placa, documento_usuario, anios_experiencia) VALUES (?, ?, ?)";
+    /**
+     * Actualiza un TransporteUsuario por su ID.
+     */
+    public boolean actualizarPorId(TransporteUsuarioDto dto) {
+        String sql = """
+            UPDATE TransporteUsuario
+            SET placa = ?, documento_usuario = ?, anios_experiencia = ?, id_estado = ?
+            WHERE codigo_TransporteUsuario = ?
+        """;
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, tu.getPlaca());
-            stmt.setLong(2, tu.getDocumentoUsuario());
-            stmt.setInt(3, tu.getAniosExperiencia());
-            return stmt.executeUpdate() > 0;
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+           int idEstado = estadoDao.obtenerIdPorNombre(dto.getEstado());
+
+            ps.setString(1, dto.getPlaca());
+            ps.setLong(2, dto.getDocumentoUsuario());
+            ps.setInt(3, dto.getAniosExperiencia());
+            ps.setInt(4, idEstado);
+            ps.setInt(5, dto.getCodigoTransporteUsuario());
+
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error al insertar transporte de usuario: " + e.getMessage());
-            return false;
+            e.printStackTrace();
         }
+
+        return false;
     }
 
-    // Actualizar un registro existente
-    public boolean actualizar(TransporteUsuario tu) {
-        String sql = "UPDATE TransporteUsuario SET placa = ?, documento_usuario = ?, anios_experiencia = ? WHERE codigo_TransporteUsuario = ?";
+    /**
+     * Elimina lógicamente un registro cambiando su estado.
+     */
+    public boolean eliminarLogicoPorId(int id, String nuevoEstado,TransporteUsuarioDto dto) {
+        String sql = "UPDATE TransporteUsuario SET id_estado = ? WHERE codigo_TransporteUsuario = ?";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, tu.getPlaca());
-            stmt.setLong(2, tu.getDocumentoUsuario());
-            stmt.setInt(3, tu.getAniosExperiencia());
-            stmt.setInt(4, tu.getCodigoTransporteUsuario());
-            return stmt.executeUpdate() > 0;
+        try (Connection con = ClaseConexion.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-        } catch (SQLException e) {
-            System.out.println("Error al actualizar transporte de usuario: " + e.getMessage());
-            return false;
-        }
-    }
+           int idEstado = estadoDao.obtenerIdPorNombre(dto.getEstado());
 
-    // Eliminar un registro por ID
-    public boolean eliminar(int id) {
-        String sql = "DELETE FROM TransporteUsuario WHERE codigo_TransporteUsuario = ?";
+            ps.setInt(1, idEstado);
+            ps.setInt(2, id);
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar transporte de usuario: " + e.getMessage());
-            return false;
+            e.printStackTrace();
         }
+
+        return false;
     }
 }
