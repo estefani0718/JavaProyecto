@@ -12,36 +12,43 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 /**
- * DAO (Data Access Object) para la entidad TipoPaquete.
- * Gestiona las operaciones CRUD con la base de datos.
+ * DAO para TipoPaquete.
+ * Usa JOINs para mostrar nombres legibles de relaciones (categoría, estado).
  */
 public class TipoPaqueteDao {
 
     /**
-     * Lista todos los paquetes registrados en la base de datos.
-     * @return Lista de TipoPaqueteDto
+     * Lista todos los paquetes con nombres legibles en vez de IDs.
      */
     public List<TipoPaqueteDto> listar() {
         List<TipoPaqueteDto> lista = new ArrayList<>();
-        String sql = "SELECT * FROM TipoPaquete";
+
+        // Consulta con JOINs para obtener los nombres de categoría y estado
+        String sql = "SELECT tp.codigo_Tpaquete, tp.nombre_paquete, tp.detalles_adicionales, " +
+                     "cp.nombre_categoria AS nombre_categoria, " +
+                     "e.nombre_estado AS nombre_estado, " +
+                     "tp.origen, tp.metodo_pago, tp.destino " +
+                     "FROM TipoPaquete tp " +
+                     "LEFT JOIN CategoriaPaquete cp ON tp.codigo_paquete = cp.codigo_paquete " +
+                     "LEFT JOIN Estados e ON tp.id_estado = e.id_estado";
 
         try (Connection con = ClaseConexion.obtenerConexion();
              PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                TipoPaqueteDto paquete = new TipoPaqueteDto(
-                    rs.getInt("codigo_Tpaquete"),
-                    rs.getString("nombre_paquete"),
-                    rs.getString("detalles_adicionales"),
-                    rs.getInt("codigo_paquete"),
-                    rs.getInt("codigo_factura"),
-                    rs.getInt("id_estado"),
-                    rs.getString("origen"),
-                    rs.getString("metodo_pago"),
-                    rs.getString("destino")
-                );
+                TipoPaqueteDto paquete = new TipoPaqueteDto();
+                paquete.setCodigoTpaquete(rs.getInt("codigo_Tpaquete"));
+                paquete.setNombrePaquete(rs.getString("nombre_paquete"));
+                paquete.setDetallesAdicionales(rs.getString("detalles_adicionales"));
+                paquete.setCategoriaPaquete(rs.getString("nombre_categoria")); // se extrae de JOIN
+                paquete.setEstado(rs.getString("nombre_estado")); // se extrae de JOIN
+                paquete.setOrigen(rs.getString("origen"));
+                paquete.setMetodoPago(rs.getString("metodo_pago"));
+                paquete.setDestino(rs.getString("destino"));
                 lista.add(paquete);
             }
         } catch (SQLException e) {
@@ -52,25 +59,24 @@ public class TipoPaqueteDao {
     }
 
     /**
-     * Guarda un nuevo paquete en la base de datos.
-     * @param paquete Objeto TipoPaqueteDto con los datos a registrar
-     * @return true si el registro fue exitoso
+     * Inserta un nuevo paquete, usando nombres legibles (texto).
      */
     public boolean guardar(TipoPaqueteDto paquete) {
-        String sql = "INSERT INTO TipoPaquete(nombre_paquete, detalles_adicionales, codigo_paquete, codigo_factura, id_estado, origen, metodo_pago, destino, valor_paquete) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0.0)";
+        // Primero obtenemos los IDs reales de la categoría y estado a partir de los nombres
+        String sql = "INSERT INTO TipoPaquete(nombre_paquete, detalles_adicionales, codigo_paquete, id_estado, origen, metodo_pago, destino) " +
+                     "VALUES (?, ?, (SELECT codigo_paquete FROM CategoriaPaquete WHERE nombre_categoria = ?), " +
+                     "(SELECT id_estado FROM Estados WHERE nombre_estado = ?), ?, ?, ?)";
 
         try (Connection con = ClaseConexion.obtenerConexion();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, paquete.getNombrePaquete());
             stmt.setString(2, paquete.getDetallesAdicionales());
-            stmt.setInt(3, paquete.getCodigoPaquete());
-            stmt.setInt(4, paquete.getCodigoFactura());
-            stmt.setInt(5, paquete.getIdEstado());
-            stmt.setString(6, paquete.getOrigen());
-            stmt.setString(7, paquete.getMetodoPago());
-            stmt.setString(8, paquete.getDestino());
+            stmt.setString(3, paquete.getCategoriaPaquete()); // nombre legible
+            stmt.setString(4, paquete.getEstado());           // nombre legible
+            stmt.setString(5, paquete.getOrigen());
+            stmt.setString(6, paquete.getMetodoPago());
+            stmt.setString(7, paquete.getDestino());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -80,13 +86,19 @@ public class TipoPaqueteDao {
     }
 
     /**
-     * Busca un paquete por su ID.
-     * @param id ID del paquete
-     * @return TipoPaqueteDto si se encuentra, null si no
+     * Busca un paquete por ID, devolviendo nombres legibles.
      */
     public TipoPaqueteDto buscarPorId(int id) {
-        String sql = "SELECT * FROM TipoPaquete WHERE codigo_Tpaquete = ?";
         TipoPaqueteDto paquete = null;
+
+        String sql = "SELECT tp.codigo_Tpaquete, tp.nombre_paquete, tp.detalles_adicionales, " +
+                     "cp.nombre_categoria AS nombre_categoria, " +
+                     "e.nombre_estado AS nombre_estado, " +
+                     "tp.origen, tp.metodo_pago, tp.destino " +
+                     "FROM TipoPaquete tp " +
+                     "LEFT JOIN CategoriaPaquete cp ON tp.codigo_paquete = cp.codigo_paquete " +
+                     "LEFT JOIN Estados e ON tp.id_estado = e.id_estado " +
+                     "WHERE tp.codigo_Tpaquete = ?";
 
         try (Connection con = ClaseConexion.obtenerConexion();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -95,17 +107,15 @@ public class TipoPaqueteDao {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                paquete = new TipoPaqueteDto(
-                    rs.getInt("codigo_Tpaquete"),
-                    rs.getString("nombre_paquete"),
-                    rs.getString("detalles_adicionales"),
-                    rs.getInt("codigo_paquete"),
-                    rs.getInt("codigo_factura"),
-                    rs.getInt("id_estado"),
-                    rs.getString("origen"),
-                    rs.getString("metodo_pago"),
-                    rs.getString("destino")
-                );
+                paquete = new TipoPaqueteDto();
+                paquete.setCodigoTpaquete(rs.getInt("codigo_Tpaquete"));
+                paquete.setNombrePaquete(rs.getString("nombre_paquete"));
+                paquete.setDetallesAdicionales(rs.getString("detalles_adicionales"));
+                paquete.setCategoriaPaquete(rs.getString("nombre_categoria"));
+                paquete.setEstado(rs.getString("nombre_estado"));
+                paquete.setOrigen(rs.getString("origen"));
+                paquete.setMetodoPago(rs.getString("metodo_pago"));
+                paquete.setDestino(rs.getString("destino"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -115,26 +125,26 @@ public class TipoPaqueteDao {
     }
 
     /**
-     * Actualiza los datos de un paquete por su ID.
-     * @param paquete Objeto TipoPaqueteDto con los nuevos datos
-     * @return true si se actualizó correctamente
+     * Actualiza un paquete por ID, utilizando nombres de texto.
      */
     public boolean actualizarPorId(TipoPaqueteDto paquete) {
-        String sql = "UPDATE TipoPaquete SET nombre_paquete=?, detalles_adicionales=?, codigo_paquete=?, " +
-                     "codigo_factura=?, id_estado=?, origen=?, metodo_pago=?, destino=? WHERE codigo_Tpaquete=?";
+        String sql = "UPDATE TipoPaquete SET nombre_paquete = ?, detalles_adicionales = ?, " +
+                     "codigo_paquete = (SELECT codigo_paquete FROM CategoriaPaquete WHERE nombre_categoria = ?), " +
+                     "id_estado = (SELECT id_estado FROM Estados WHERE nombre_estado = ?), " +
+                     "origen = ?, metodo_pago = ?, destino = ? " +
+                     "WHERE codigo_Tpaquete = ?";
 
         try (Connection con = ClaseConexion.obtenerConexion();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, paquete.getNombrePaquete());
             stmt.setString(2, paquete.getDetallesAdicionales());
-            stmt.setInt(3, paquete.getCodigoPaquete());
-            stmt.setInt(4, paquete.getCodigoFactura());
-            stmt.setInt(5, paquete.getIdEstado());
-            stmt.setString(6, paquete.getOrigen());
-            stmt.setString(7, paquete.getMetodoPago());
-            stmt.setString(8, paquete.getDestino());
-            stmt.setInt(9, paquete.getCodigoTpaquete());
+            stmt.setString(3, paquete.getCategoriaPaquete());
+            stmt.setString(4, paquete.getEstado());
+            stmt.setString(5, paquete.getOrigen());
+            stmt.setString(6, paquete.getMetodoPago());
+            stmt.setString(7, paquete.getDestino());
+            stmt.setInt(8, paquete.getCodigoTpaquete());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -144,18 +154,15 @@ public class TipoPaqueteDao {
     }
 
     /**
-     * Elimina lógicamente un paquete (cambia su estado).
-     * @param id ID del paquete
-     * @param nuevoEstado ID del nuevo estado (por ejemplo, 0 para inactivo)
-     * @return true si se cambió el estado correctamente
+     * Elimina lógicamente un paquete (cambia el estado a otro valor).
      */
-    public boolean eliminarLogico(int id, int nuevoEstado) {
-        String sql = "UPDATE TipoPaquete SET id_estado = ? WHERE codigo_Tpaquete = ?";
+    public boolean eliminarLogico(int id, String nuevoEstado) {
+        String sql = "UPDATE TipoPaquete SET id_estado = (SELECT id_estado FROM Estados WHERE nombre_estado = ?) WHERE codigo_Tpaquete = ?";
 
         try (Connection con = ClaseConexion.obtenerConexion();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
-            stmt.setInt(1, nuevoEstado);
+            stmt.setString(1, nuevoEstado); // por ejemplo "Inactivo"
             stmt.setInt(2, id);
 
             return stmt.executeUpdate() > 0;

@@ -51,7 +51,7 @@ public class TipoPaqueteServicios {
     /**
      * Elimina lógicamente un paquete por su ID (cambiando su estado).
      */
-    public boolean eliminarLogico(int id, int nuevoEstado) {
+    public boolean eliminarLogico(int id, String nuevoEstado) {
         return dao.eliminarLogico(id, nuevoEstado);
     }
 }

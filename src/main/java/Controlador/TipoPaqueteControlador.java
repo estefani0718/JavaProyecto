@@ -82,7 +82,7 @@ public class TipoPaqueteControlador {
      */
     @DELETE
     @Path("/{id}/{nuevoEstado}")
-    public Response eliminar(@PathParam("id") int id, @PathParam("nuevoEstado") int nuevoEstado) {
+    public Response eliminar(@PathParam("id") int id, @PathParam("nuevoEstado") String nuevoEstado) {
         boolean eliminado = servicio.eliminarLogico(id, nuevoEstado);
         if (eliminado) {
             return Response.ok("Paquete eliminado lógicamente").build();

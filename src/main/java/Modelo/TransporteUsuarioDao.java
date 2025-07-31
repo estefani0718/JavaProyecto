@@ -36,12 +36,13 @@ public class TransporteUsuarioDao {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                TransporteUsuarioDto dto = new TransporteUsuarioDto(
-                    rs.getInt("codigo_TransporteUsuario"),
-                    rs.getString("placa"),
-                    rs.getLong("documento_usuario"),
-                    rs.getInt("anios_experiencia"),
-                    rs.getString("nombre_estado")
+                TransporteUsuarioDto dto;
+                dto = new TransporteUsuarioDto(
+                        rs.getInt("codigo_TransporteUsuario"),
+                        rs.getString("placa"),
+                        rs.getLong("documento_usuario"),
+                        rs.getInt("anios_experiencia"),
+                        rs.getString("nombre_estado")
                 );
                 lista.add(dto);
             }

@@ -87,6 +87,6 @@ public class FacturaServicios {
      * @return true si el cambio de estado fue exitoso
      */
     public boolean eliminarFactura(int id) {
-        return facturaDao.eliminarLogico(id);
+        return facturaDao.eliminar(id);
     }
 }

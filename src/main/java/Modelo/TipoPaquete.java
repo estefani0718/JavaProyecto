@@ -21,7 +21,6 @@ public class TipoPaquete {
     private String detallesAdicionales;   // Información adicional sobre el paquete
     private int codigoTransporteUsuario;  // Llave foránea hacia TransporteUsuario
     private int codigoCategoria;          // Llave foránea hacia CategoriaPaquete
-    private int codigoFactura;            // Llave foránea hacia Factura
     private int idEstado;                 // Llave foránea hacia Estados (activo, entregado, eliminado)
     private String origen;                // Origen del paquete
     private String destino;               // Destino del paquete
@@ -67,14 +66,6 @@ public class TipoPaquete {
 
     public void setCodigoCategoria(int codigoCategoria) {
         this.codigoCategoria = codigoCategoria;
-    }
-
-    public int getCodigoFactura() {
-        return codigoFactura;
-    }
-
-    public void setCodigoFactura(int codigoFactura) {
-        this.codigoFactura = codigoFactura;
     }
 
     public int getIdEstado() {
